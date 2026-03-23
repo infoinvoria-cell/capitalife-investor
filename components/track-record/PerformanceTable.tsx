@@ -129,9 +129,9 @@ export default function PerformanceTable({
 
   const mobileDense = isMobileViewport && !isExpanded && !isLandscapeViewport;
   const compactMode = isMobileViewport && !isLandscapeViewport;
-  const yearColClass = mobileDense ? "w-[8%]" : compactMode ? "w-[8%]" : "w-[56px] min-[769px]:w-[64px]";
+  const yearColClass = mobileDense ? "w-[10.5%]" : compactMode ? "w-[10.5%]" : "w-[64px] min-[769px]:w-[76px]";
   const monthColClass = mobileDense ? "w-[5.5%]" : compactMode ? "w-[5.5%]" : "w-[44px] min-[769px]:w-auto";
-  const totalColClass = mobileDense ? "w-[26%]" : compactMode ? "w-[26%]" : "w-[124px] min-[769px]:w-[146px] xl:w-[160px]";
+  const totalColClass = mobileDense ? "w-[23.5%]" : compactMode ? "w-[23.5%]" : "w-[112px] min-[769px]:w-[128px] xl:w-[142px]";
   const monthHeaderClass = mobileDense
     ? "border-y px-0 py-2 text-center text-[5.5px] uppercase tracking-[0.04em]"
     : compactMode
@@ -173,7 +173,7 @@ export default function PerformanceTable({
       <div className="relative z-[1] mb-6 flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
         <div className="space-y-1.5">
           <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
-            Data Layer
+            Data Verified
           </div>
           <div className="text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
             Performance Table

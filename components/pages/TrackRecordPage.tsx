@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { BadgeCheck, ChevronDown, ChevronUp } from "lucide-react";
 
 import comparisonTimeseries from "@/data/track-record-comparison-timeseries.json";
 import { PartnerMarquee } from "@/components/home/PartnerMarquee";
@@ -269,9 +269,9 @@ export default function TrackRecordPage({ initialModel }: Props) {
 
   return (
     <main className="ivq-terminal-page ivq-track-record-page">
-      <div className="mobile-container mx-auto flex w-full min-w-0 max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
-        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
-          <section className="grid min-w-0 gap-6">
+      <div className="performance-page mx-auto flex w-full min-w-0 max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
+        <div className="performance-content flex min-w-0 flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
+          <section className="flex min-w-0 flex-col gap-6">
             <PerformanceChart
               chartData={chartDataWithComparisons}
               activeMultipliers={activeMultipliers}
@@ -287,16 +287,24 @@ export default function TrackRecordPage({ initialModel }: Props) {
             />
 
             <div className="flex justify-center px-2">
-              <div
-                className="app-badge min-[769px]:text-[9px]"
-                style={{
-                  borderColor: theme === "dark" ? "rgba(236,219,166,0.18)" : "rgba(255,255,255,0.14)",
-                  background: "rgba(255,255,255,0.03)",
-                  color: theme === "dark" ? "#f5e7bd" : "#dce8ff",
-                  boxShadow: "0 10px 24px rgba(0,0,0,0.18)"
-                }}
-              >
-                Third Party Verified Track Record
+              <div className="flex items-center gap-2">
+                <div
+                  className="inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[8px] font-semibold uppercase tracking-[0.08em] min-[769px]:h-10 min-[769px]:text-[9px]"
+                  style={{
+                    borderColor: theme === "dark" ? "rgba(236,219,166,0.24)" : "rgba(255,255,255,0.18)",
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), linear-gradient(135deg, rgba(255,228,148,0.12), rgba(255,228,148,0.03))",
+                    color: theme === "dark" ? "#f5e7bd" : "#dce8ff",
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.22), 0 0 22px rgba(236,219,166,0.18)"
+                  }}
+                >
+                  <BadgeCheck
+                    className="h-4.5 w-4.5 shrink-0 min-[769px]:h-5 min-[769px]:w-5"
+                    strokeWidth={1.9}
+                    style={{ filter: "drop-shadow(0 0 10px rgba(236,219,166,0.22))" }}
+                  />
+                  Third Party Verified Track Record
+                </div>
               </div>
             </div>
 
@@ -318,7 +326,7 @@ export default function TrackRecordPage({ initialModel }: Props) {
             />
           </section>
 
-          <aside className="grid min-w-0 gap-4">
+          <aside className="flex min-w-0 flex-col gap-4">
             <section
               className="relative overflow-hidden rounded-[24px] border p-[18px] backdrop-blur-[18px]"
               style={{

@@ -55,10 +55,10 @@ type Props = {
   isRefreshing?: boolean;
 };
 
-const CHART_MODE_OPTIONS: Array<{ value: ChartViewMode; label: string; short: string }> = [
-  { value: "monthly", label: "Monthly", short: "M" },
-  { value: "quarterly", label: "Quarterly", short: "Q" },
-  { value: "yearly", label: "Yearly", short: "Y" },
+const CHART_MODE_OPTIONS: Array<{ value: ChartViewMode; label: string; short: string; mobileWidth: number; desktopWidth: number }> = [
+  { value: "monthly", label: "Monthly", short: "M", mobileWidth: 84, desktopWidth: 96 },
+  { value: "quarterly", label: "Quarterly", short: "Q", mobileWidth: 92, desktopWidth: 108 },
+  { value: "yearly", label: "Yearly", short: "Y", mobileWidth: 78, desktopWidth: 90 },
 ];
 
 const HOME_GLASS_BACKGROUND = [
@@ -111,6 +111,10 @@ function formatDisplayDate(value: string | undefined): string {
 
 function clampIndex(value: number, max: number): number {
   return Math.min(Math.max(value, 0), max);
+}
+
+function clampValue(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
 
 function findClosestIndex(chartData: ChartPoint[], targetDate: string): number {
@@ -240,6 +244,33 @@ export default function PerformanceChart({
     return [...multiplierLines, ...comparisonLines];
   }, [sortedActiveComparisons, sortedActiveMultipliers]);
 
+  const chartDomain = useMemo(() => {
+    const values: number[] = [];
+
+    visibleChartData.forEach((point) => {
+      activeLines.forEach((line) => {
+        const candidate = Number(point[line.dataKey]);
+        if (Number.isFinite(candidate)) {
+          values.push(candidate);
+        }
+      });
+    });
+
+    if (!values.length) {
+      return { min: 0, max: 100 };
+    }
+
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const range = Math.max(maxValue - minValue, 8);
+    const padding = Math.max(range * 0.14, 4);
+
+    return {
+      min: Math.floor((minValue - padding) / 5) * 5,
+      max: Math.ceil((maxValue + padding) / 5) * 5,
+    };
+  }, [activeLines, visibleChartData]);
+
   const toggleMultiplier = (multiplier: number) => {
     const isActive = sortedActiveMultipliers.includes(multiplier);
     if (isActive && sortedActiveMultipliers.length === 1) {
@@ -273,18 +304,25 @@ export default function PerformanceChart({
       const label = formatSignedPercent(Number(props.value ?? 0) / 100);
       const icon = getLabelIcon(line);
       const iconWidth = icon ? 18 : 0;
-      const labelWidth = Math.max(56, label.length * 6 + 18 + iconWidth);
+      const labelWidth = Math.max(62, label.length * 6 + 20 + iconWidth);
       const verticalOffset = (labelOffsetIndex - (activeLines.length - 1) / 2) * 15;
       const viewBoxX = Number(props.viewBox?.x ?? 0);
+      const viewBoxY = Number(props.viewBox?.y ?? 0);
       const viewBoxWidth = Number(props.viewBox?.width ?? 0);
-      const labelX = viewBoxWidth > 0 && cx + 8 + labelWidth > viewBoxX + viewBoxWidth - 4
-        ? cx - labelWidth - 10
-        : cx + 8;
+      const viewBoxHeight = Number(props.viewBox?.height ?? 0);
+      const rawLabelX = cx + 6 + labelWidth > viewBoxX + viewBoxWidth - 14 ? cx - labelWidth - 14 : cx + 6;
+      const labelX = viewBoxWidth > 0
+        ? clampValue(rawLabelX, viewBoxX + 4, viewBoxX + viewBoxWidth - labelWidth - 4)
+        : rawLabelX;
+      const rawLabelY = cy - 11 + verticalOffset;
+      const labelY = viewBoxHeight > 0
+        ? clampValue(rawLabelY, viewBoxY + 4, viewBoxY + viewBoxHeight - 24)
+        : rawLabelY;
 
       return (
         <g>
           <circle cx={cx} cy={cy} r={2.75} fill={line.stroke} stroke="rgba(6,8,11,0.95)" strokeWidth={1.15} />
-          <g transform={`translate(${labelX}, ${cy - 11 + verticalOffset})`}>
+          <g transform={`translate(${labelX}, ${labelY})`}>
             <rect
               width={labelWidth}
               height={20}
@@ -350,10 +388,8 @@ export default function PerformanceChart({
 
   return (
     <section
-      className="performance-chart-shell relative mx-auto flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden rounded-[28px] border px-[18px] pb-[20px] pt-[20px] min-[769px]:px-[22px] min-[769px]:pb-[22px] min-[769px]:pt-[22px] backdrop-blur-[18px]"
+      className="performance-chart-shell relative flex h-full min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-[28px] border px-[18px] pb-[20px] pt-[20px] min-[769px]:px-[22px] min-[769px]:pb-[22px] min-[769px]:pt-[22px] backdrop-blur-[18px]"
       style={{
-        width: "100%",
-        maxWidth: "100%",
         background: [
           "linear-gradient(135deg, rgba(255,228,148,0.14) 0%, rgba(255,228,148,0.035) 26%, rgba(255,255,255,0.014) 46%, rgba(8,8,10,0) 72%)",
           HOME_GLASS_BACKGROUND,
@@ -388,7 +424,7 @@ export default function PerformanceChart({
 
         <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden pb-1">
           <div
-            className="inline-flex h-10 w-full min-w-0 max-w-[166px] shrink-0 items-center gap-1 rounded-full border p-1 min-[769px]:max-w-[190px]"
+            className="inline-flex h-10 w-full min-w-0 max-w-[146px] shrink-0 items-center gap-1 rounded-full border p-1 min-[390px]:max-w-[156px] min-[769px]:max-w-[190px]"
             style={{
               borderColor: "rgba(236,219,166,0.12)",
               background: "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015))",
@@ -402,18 +438,23 @@ export default function PerformanceChart({
                   key={option.value}
                   type="button"
                   onClick={() => onChartModeChange(option.value)}
-                  className="inline-flex min-h-[34px] items-center overflow-hidden rounded-full px-2.5 py-2 text-[8px] font-semibold uppercase tracking-[0.12em] outline-none transition-all duration-300"
+                  className="inline-flex min-h-[34px] items-center overflow-hidden rounded-full px-2 py-2 text-[7px] font-semibold uppercase tracking-[0.08em] outline-none transition-all duration-300 min-[390px]:px-2.5 min-[390px]:text-[8px]"
                   style={{
                     border: "1px solid transparent",
                     borderColor: isActive ? "rgba(236,219,166,0.22)" : "transparent",
                     background: isActive ? "linear-gradient(180deg, rgba(247,233,191,0.34), rgba(217,184,76,0.16))" : "transparent",
                     boxShadow: isActive ? "0 0 14px rgba(236,219,166,0.12)" : "none",
                     color: isActive ? palette.heading : palette.muted,
-                    minWidth: isActive ? 96 : 28,
+                    minWidth: isActive ? (isMobileViewport ? option.mobileWidth : option.desktopWidth) : 28,
                   }}
                 >
                   <span>{option.short}</span>
-                  <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${isActive ? "ml-1 max-w-[76px] opacity-100" : "ml-0 max-w-0 opacity-0"}`}>
+                  <span
+                    className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
+                      isActive ? "ml-1 opacity-100" : "ml-0 max-w-0 opacity-0"
+                    }`}
+                    style={{ maxWidth: isActive ? (isMobileViewport ? option.mobileWidth - 22 : option.desktopWidth - 24) : 0 }}
+                  >
                     {option.label}
                   </span>
                 </button>
@@ -421,8 +462,8 @@ export default function PerformanceChart({
             })}
           </div>
 
-          <div className="inline-flex min-w-0 flex-1 items-center gap-1.5">
-            <div className="pl-1 pr-0.5 text-[8px] font-semibold uppercase tracking-[0.18em]" style={{ color: palette.muted }}>
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 overflow-hidden">
+            <div className="shrink-0 pl-1 pr-0.5 text-[8px] font-semibold uppercase tracking-[0.18em]" style={{ color: palette.muted }}>
               Compare
             </div>
             {comparisonOptions.map((comparison) => {
@@ -433,7 +474,7 @@ export default function PerformanceChart({
                   key={comparison.id}
                   type="button"
                   onClick={() => toggleComparison(comparison.id)}
-                  className="inline-flex min-h-[34px] items-center overflow-hidden rounded-full border px-2.5 py-2 text-[8px] font-semibold uppercase tracking-[0.1em] outline-none transition-all duration-300"
+                  className="inline-flex min-h-[34px] min-w-0 shrink-0 items-center overflow-hidden rounded-full border px-2 py-2 text-[8px] font-semibold uppercase tracking-[0.1em] outline-none transition-all duration-300"
                   style={{
                     borderColor: isActive ? `${comparisonColor}66` : palette.panelBorder,
                     background: isActive
@@ -445,7 +486,7 @@ export default function PerformanceChart({
                 >
                   <span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full" style={{ background: comparisonColor, boxShadow: `0 0 10px ${comparisonColor}` }} />
                   <span>{comparison.shortLabel}</span>
-                  <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${isActive ? "ml-1.5 max-w-[64px] opacity-100" : "ml-0 max-w-0 opacity-0"}`}>
+                  <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${isActive ? "ml-1.5 opacity-100" : "ml-0 max-w-0 opacity-0"}`} style={{ maxWidth: isActive ? (isMobileViewport ? 0 : 64) : 0 }}>
                     {comparison.label}
                   </span>
                 </button>
@@ -476,7 +517,6 @@ export default function PerformanceChart({
                       : "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015))",
                     color: isActive ? palette.heading : palette.muted,
                     boxShadow: isActive ? `0 0 18px rgba(236,219,166,0.16)` : "none",
-                    transform: isActive ? "scale(1.04)" : "scale(1)",
                   }}
                 >
                   {curve.label}
@@ -485,7 +525,7 @@ export default function PerformanceChart({
             })}
           </div>
 
-          <div className="flex w-full min-w-0 max-w-full items-start gap-2 overflow-hidden">
+          <div className="flex w-full min-w-0 max-w-full items-start gap-2 overflow-visible">
             <div className="min-w-0 basis-[78px] shrink-0 min-[390px]:basis-[88px]">
               <div
                 className="flex h-8 w-full max-w-full items-center justify-center overflow-hidden rounded-[12px] border px-1 text-center text-[8px] font-semibold tracking-[0.01em] text-white min-[390px]:text-[9px] min-[769px]:text-[11px]"
@@ -542,7 +582,7 @@ export default function PerformanceChart({
         </div>
       </div>
 
-      <div className="relative z-[1] flex min-h-[332px] flex-1 flex-col overflow-hidden min-[769px]:min-h-[420px]">
+      <div className="relative z-[1] flex h-[300px] min-h-[300px] flex-col overflow-hidden min-[390px]:h-[336px] min-[390px]:min-h-[336px] min-[769px]:h-[420px] min-[769px]:min-h-[420px]">
         {sortedActiveComparisons.length ? (
           <div className="mb-3 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.14em]">
             {sortedActiveComparisons.map((comparison) => {
@@ -571,8 +611,8 @@ export default function PerformanceChart({
                 data={visibleChartData}
                 margin={{
                   top: isMobileViewport ? 8 : 10,
-                  right: isMobileViewport ? 138 : (activeLines.length > 3 ? 132 : 94),
-                  left: isMobileViewport ? -12 : -2,
+                  right: isMobileViewport ? 84 : (activeLines.length > 3 ? 132 : 94),
+                  left: isMobileViewport ? 0 : 0,
                   bottom: isMobileViewport ? 22 : 24,
                 }}
               >
@@ -586,6 +626,7 @@ export default function PerformanceChart({
                   tick={{ fill: palette.muted, fontSize: isMobileViewport ? 9 : 10 }}
                 />
                 <YAxis
+                  domain={[chartDomain.min, chartDomain.max]}
                   width={isMobileViewport ? 46 : 58}
                   tickMargin={isMobileViewport ? 6 : 8}
                   stroke={palette.grid}

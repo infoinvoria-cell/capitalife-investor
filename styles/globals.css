@@ -303,7 +303,7 @@
     border-radius: 999px;
     border: 1px solid rgba(236, 219, 166, 0.34);
     background: linear-gradient(180deg, #f7e9bf 0%, #d9b84c 100%);
-    box-shadow: 0 0 18px rgba(236, 219, 166, 0.28);
+    box-shadow: 0 8px 18px rgba(236, 219, 166, 0.14), 0 0 10px rgba(236, 219, 166, 0.16);
     cursor: pointer;
   }
 
@@ -321,7 +321,7 @@
     border-radius: 999px;
     border: 1px solid rgba(236, 219, 166, 0.34);
     background: linear-gradient(180deg, #f7e9bf 0%, #d9b84c 100%);
-    box-shadow: 0 0 18px rgba(236, 219, 166, 0.28);
+    box-shadow: 0 8px 18px rgba(236, 219, 166, 0.14), 0 0 10px rgba(236, 219, 166, 0.16);
     cursor: pointer;
   }
 
@@ -346,6 +346,18 @@
     padding-right: 16px;
   }
 
+  .performance-page {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .performance-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
   .performance-chart-shell {
     width: 100%;
     max-width: 100%;
@@ -362,7 +374,6 @@
   .chart-container svg {
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
   }
 
   .marquee-mask {
@@ -526,17 +537,12 @@
   .ivq-track-record-page {
     padding-top: 10px;
   }
-
-  .performance-chart-shell {
-    width: calc(100vw - 28px);
-    max-width: calc(100vw - 28px);
-  }
 }
 
 @media (max-width: 420px) {
-  .performance-chart-shell {
-    width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
+  .performance-page {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
