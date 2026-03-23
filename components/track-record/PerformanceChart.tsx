@@ -94,6 +94,21 @@ function formatDateInputValue(value: string | undefined): string {
   return value.slice(0, 10);
 }
 
+function formatDisplayDate(value: string | undefined): string {
+  if (!value) return "--.--.----";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value.slice(0, 10);
+  }
+
+  return date.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 function clampIndex(value: number, max: number): number {
   return Math.min(Math.max(value, 0), max);
 }
@@ -335,8 +350,10 @@ export default function PerformanceChart({
 
   return (
     <section
-      className="relative flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden rounded-[28px] border px-[18px] pb-[20px] pt-[20px] min-[769px]:px-[22px] min-[769px]:pb-[22px] min-[769px]:pt-[22px] backdrop-blur-[18px]"
+      className="performance-chart-shell relative mx-auto flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden rounded-[28px] border px-[18px] pb-[20px] pt-[20px] min-[769px]:px-[22px] min-[769px]:pb-[22px] min-[769px]:pt-[22px] backdrop-blur-[18px]"
       style={{
+        width: "100%",
+        maxWidth: "100%",
         background: [
           "linear-gradient(135deg, rgba(255,228,148,0.14) 0%, rgba(255,228,148,0.035) 26%, rgba(255,255,255,0.014) 46%, rgba(8,8,10,0) 72%)",
           HOME_GLASS_BACKGROUND,
@@ -468,20 +485,17 @@ export default function PerformanceChart({
             })}
           </div>
 
-          <div className="flex w-full min-w-0 items-start gap-2.5">
-            <div className="min-w-0 basis-[84px]">
-              <input
-                type="date"
-                value={formatDateInputValue(rangeStartDate)}
-                min={formatDateInputValue(chartData[0]?.fullDate)}
-                max={formatDateInputValue(rangeEndDate)}
-                onChange={(event) => setRangeStartIndex(Math.min(findClosestIndex(chartData, event.target.value), activeRangeEndIndex))}
-                className="h-8 w-full max-w-full rounded-[12px] border bg-transparent px-1 text-center text-[16px] text-white outline-none min-[769px]:text-[13px]"
-                style={{ borderColor: "rgba(236,219,166,0.12)" }}
-              />
+          <div className="flex w-full min-w-0 max-w-full items-start gap-2 overflow-hidden">
+            <div className="min-w-0 basis-[78px] shrink-0 min-[390px]:basis-[88px]">
+              <div
+                className="flex h-8 w-full max-w-full items-center justify-center overflow-hidden rounded-[12px] border px-1 text-center text-[8px] font-semibold tracking-[0.01em] text-white min-[390px]:text-[9px] min-[769px]:text-[11px]"
+                style={{ borderColor: "rgba(236,219,166,0.12)", background: "rgba(255,255,255,0.02)" }}
+              >
+                {formatDisplayDate(rangeStartDate)}
+              </div>
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 overflow-hidden chart-container">
               <div className="relative h-[52px] px-1.5">
                 <div className="pointer-events-none absolute inset-x-2 top-[16px] h-[2px] rounded-full bg-white/10" />
                 <div
@@ -516,16 +530,13 @@ export default function PerformanceChart({
               </div>
             </div>
 
-            <div className="min-w-0 basis-[84px]">
-              <input
-                type="date"
-                value={formatDateInputValue(rangeEndDate)}
-                min={formatDateInputValue(rangeStartDate)}
-                max={formatDateInputValue(chartData[maxRangeIndex]?.fullDate)}
-                onChange={(event) => setRangeEndIndex(Math.max(findClosestIndex(chartData, event.target.value), activeRangeStartIndex))}
-                className="h-8 w-full max-w-full rounded-[12px] border bg-transparent px-1 text-center text-[16px] text-white outline-none min-[769px]:text-[13px]"
-                style={{ borderColor: "rgba(236,219,166,0.12)" }}
-              />
+            <div className="min-w-0 basis-[78px] shrink-0 min-[390px]:basis-[88px]">
+              <div
+                className="flex h-8 w-full max-w-full items-center justify-center overflow-hidden rounded-[12px] border px-1 text-center text-[8px] font-semibold tracking-[0.01em] text-white min-[390px]:text-[9px] min-[769px]:text-[11px]"
+                style={{ borderColor: "rgba(236,219,166,0.12)", background: "rgba(255,255,255,0.02)" }}
+              >
+                {formatDisplayDate(rangeEndDate)}
+              </div>
             </div>
           </div>
         </div>
@@ -553,14 +564,14 @@ export default function PerformanceChart({
             })}
           </div>
         ) : null}
-        <div className="relative min-h-0 flex-1">
+        <div className="chart-container relative min-h-0 flex-1 overflow-hidden">
           {mounted ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={visibleChartData}
                 margin={{
                   top: isMobileViewport ? 8 : 10,
-                  right: isMobileViewport ? (activeLines.length > 3 ? 116 : 88) : (activeLines.length > 3 ? 132 : 94),
+                  right: isMobileViewport ? 138 : (activeLines.length > 3 ? 132 : 94),
                   left: isMobileViewport ? -12 : -2,
                   bottom: isMobileViewport ? 22 : 24,
                 }}
@@ -582,12 +593,17 @@ export default function PerformanceChart({
                   tickFormatter={(value: number) => `${Math.round(value)}%`}
                 />
                 <Tooltip
+                  allowEscapeViewBox={{ x: false, y: false }}
                   contentStyle={{
                     borderRadius: 10,
                     border: "1px solid rgba(255,255,255,0.08)",
                     background: "rgba(8,9,11,0.94)",
                     boxShadow: "0 14px 28px rgba(0,0,0,0.36)",
                     padding: "8px 10px",
+                  }}
+                  wrapperStyle={{
+                    maxWidth: isMobileViewport ? 112 : 140,
+                    overflow: "hidden",
                   }}
                   itemStyle={{ color: palette.heading, fontSize: 11 }}
                   labelStyle={{ color: palette.muted, fontWeight: 600, fontSize: 10, marginBottom: 4 }}

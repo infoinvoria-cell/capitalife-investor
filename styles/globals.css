@@ -150,7 +150,8 @@
   }
 
   .bottom-nav > * {
-    width: min(420px, 100vw);
+    width: 100%;
+    max-width: 420px;
     pointer-events: auto;
   }
 
@@ -166,7 +167,8 @@
   }
 
   .risk-note > * {
-    width: min(420px, 100vw);
+    width: 100%;
+    max-width: 420px;
     pointer-events: auto;
   }
 
@@ -185,7 +187,6 @@
     min-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    touch-action: pan-y;
   }
 
   .track-record-content .page-transition {
@@ -275,7 +276,7 @@
   }
 
   .performance-range {
-    touch-action: none;
+    touch-action: pan-y;
     pointer-events: none;
   }
 
@@ -337,6 +338,31 @@
     overflow-x: hidden;
     padding-top: 12px;
     touch-action: pan-y;
+  }
+
+  .mobile-container {
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .performance-chart-shell {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .chart-container {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .chart-container canvas,
+  .chart-container svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
   }
 
   .marquee-mask {
@@ -499,6 +525,18 @@
 
   .ivq-track-record-page {
     padding-top: 10px;
+  }
+
+  .performance-chart-shell {
+    width: calc(100vw - 28px);
+    max-width: calc(100vw - 28px);
+  }
+}
+
+@media (max-width: 420px) {
+  .performance-chart-shell {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
   }
 }
 

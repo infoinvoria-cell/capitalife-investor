@@ -269,9 +269,9 @@ export default function TrackRecordPage({ initialModel }: Props) {
 
   return (
     <main className="ivq-terminal-page ivq-track-record-page">
-      <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
-          <section className="grid gap-6">
+      <div className="mobile-container mx-auto flex w-full min-w-0 max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
+          <section className="grid min-w-0 gap-6">
             <PerformanceChart
               chartData={chartDataWithComparisons}
               activeMultipliers={activeMultipliers}
@@ -318,7 +318,7 @@ export default function TrackRecordPage({ initialModel }: Props) {
             />
           </section>
 
-          <aside className="grid gap-4">
+          <aside className="grid min-w-0 gap-4">
             <section
               className="relative overflow-hidden rounded-[24px] border p-[18px] backdrop-blur-[18px]"
               style={{
