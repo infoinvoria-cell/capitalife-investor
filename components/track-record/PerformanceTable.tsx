@@ -6,6 +6,19 @@ import { Maximize2, Minimize2, RotateCw } from "lucide-react";
 import { MONTH_LABELS, formatSignedPercent, type PerformanceRow, type TrackRecordTheme } from "@/components/track-record/metrics";
 import { getTrackRecordThemePalette } from "@/components/track-record/theme";
 
+const HOME_GLASS_BACKGROUND = [
+  "linear-gradient(180deg, rgba(255, 255, 255, 0.078), rgba(255, 255, 255, 0.02))",
+  "linear-gradient(135deg, rgba(255, 215, 120, 0.04), rgba(255, 255, 255, 0) 42%)",
+  "linear-gradient(180deg, rgba(16, 14, 10, 0.88), rgba(8, 8, 8, 0.82))",
+].join(", ");
+
+const HOME_GLASS_SHADOW = [
+  "inset 0 1px 0 rgba(255, 247, 227, 0.07)",
+  "inset 0 -18px 36px rgba(0, 0, 0, 0.18)",
+  "0 22px 48px rgba(0, 0, 0, 0.62)",
+  "0 0 28px rgba(236, 219, 166, 0.08)",
+].join(", ");
+
 type Props = {
   rows: PerformanceRow[];
   totalCumulativeReturn: number;
@@ -116,42 +129,45 @@ export default function PerformanceTable({
 
   const mobileDense = isMobileViewport && !isExpanded && !isLandscapeViewport;
   const compactMode = isMobileViewport && !isLandscapeViewport;
-  const yearColClass = mobileDense ? "w-[12%]" : compactMode ? "w-[10%]" : "w-[56px] min-[769px]:w-[64px]";
-  const monthColClass = mobileDense ? "w-[5.75%]" : compactMode ? "w-[5.95%]" : "w-[42px] min-[769px]:w-auto";
-  const totalColClass = mobileDense ? "w-[19%]" : compactMode ? "w-[18%]" : "w-[112px] min-[769px]:w-[132px] xl:w-[144px]";
+  const yearColClass = mobileDense ? "w-[8%]" : compactMode ? "w-[8%]" : "w-[56px] min-[769px]:w-[64px]";
+  const monthColClass = mobileDense ? "w-[5.5%]" : compactMode ? "w-[5.5%]" : "w-[44px] min-[769px]:w-auto";
+  const totalColClass = mobileDense ? "w-[26%]" : compactMode ? "w-[26%]" : "w-[124px] min-[769px]:w-[146px] xl:w-[160px]";
   const monthHeaderClass = mobileDense
-    ? "border-y px-0 py-2 text-center text-[5px] uppercase tracking-[0.04em]"
+    ? "border-y px-0 py-2 text-center text-[5.5px] uppercase tracking-[0.04em]"
     : compactMode
-      ? "border-y px-0 py-2 text-center text-[6px] uppercase tracking-[0.06em]"
+      ? "border-y px-0 py-2 text-center text-[6.5px] uppercase tracking-[0.06em]"
       : "border-y px-0.5 py-2.5 text-center text-[6.5px] uppercase tracking-[0.1em] min-[769px]:px-1 min-[769px]:text-[8px]";
   const monthValueClass = mobileDense
-    ? "border-y px-0 py-3 text-center text-[5.3px] font-semibold leading-none whitespace-nowrap"
+    ? "border-y px-0 py-3 text-center text-[6px] font-semibold leading-none whitespace-nowrap"
     : compactMode
-      ? "border-y px-0 py-3 text-center text-[6.3px] font-semibold leading-none whitespace-nowrap"
-      : "border-y px-[2px] py-3 text-center text-[7px] font-semibold whitespace-nowrap min-[769px]:px-1 min-[769px]:text-[11px]";
+      ? "border-y px-0 py-3 text-center text-[7px] font-semibold leading-none whitespace-nowrap"
+      : "border-y px-[2px] py-3 text-center text-[8px] font-semibold whitespace-nowrap min-[769px]:px-1 min-[769px]:text-[11px]";
   const yearCellClass = mobileDense
-    ? "rounded-l-2xl border-y border-l px-1 py-3 text-[8px] font-semibold"
+    ? "rounded-l-2xl border-y border-l px-1 py-3 text-[9px] font-semibold"
     : compactMode
-      ? "rounded-l-2xl border-y border-l px-1.5 py-3 text-[9px] font-semibold"
+      ? "rounded-l-2xl border-y border-l px-1.5 py-3 text-[10px] font-semibold"
       : "rounded-l-2xl border-y border-l px-1.5 py-3 text-[10px] font-semibold min-[769px]:px-2 min-[769px]:text-[12px]";
   const totalCellClass = mobileDense
-    ? "rounded-r-2xl border-y border-r px-0.5 py-3 text-center text-[7px] font-semibold leading-none whitespace-nowrap"
+    ? "rounded-r-2xl border-y border-r px-0.5 py-3 text-center text-[8px] font-semibold leading-none whitespace-nowrap"
     : compactMode
-      ? "rounded-r-2xl border-y border-r px-1 py-3 text-center text-[8px] font-semibold leading-none whitespace-nowrap"
+      ? "rounded-r-2xl border-y border-r px-1 py-3 text-center text-[9px] font-semibold leading-none whitespace-nowrap"
       : "rounded-r-2xl border-y border-r px-1 py-3 text-center text-[10px] font-semibold whitespace-nowrap min-[769px]:px-1.5 min-[769px]:text-[11px]";
   const totalRowValueClass = mobileDense
-    ? "whitespace-nowrap text-[15px] font-semibold"
+    ? "whitespace-nowrap text-[14px] font-semibold"
     : compactMode
-      ? "whitespace-nowrap text-[17px] font-semibold"
+      ? "whitespace-nowrap text-[16px] font-semibold"
       : "whitespace-nowrap text-[18px] font-semibold min-[769px]:text-[20px] xl:text-[22px]";
 
   const renderTableCard = (expanded = false) => (
     <section
-      className={`relative overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[18px] ${expanded ? "min-h-[calc(100dvh-24px)]" : ""}`}
+      className={`relative overflow-hidden rounded-[28px] border p-[18px] min-[769px]:p-[22px] backdrop-blur-[18px] ${expanded ? "min-h-[calc(100dvh-24px)]" : ""}`}
       style={{
-        background: palette.panelBackgroundStrong,
-        borderColor: palette.panelBorder,
-        boxShadow: palette.panelShadow,
+        background: [
+          "linear-gradient(135deg, rgba(255,228,148,0.14) 0%, rgba(255,228,148,0.035) 24%, rgba(255,255,255,0.012) 46%, rgba(8,8,10,0) 72%)",
+          HOME_GLASS_BACKGROUND,
+        ].join(", "),
+        borderColor: "rgba(236,219,166,0.16)",
+        boxShadow: HOME_GLASS_SHADOW,
       }}
     >
       <div className="relative z-[1] mb-6 flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
@@ -166,6 +182,9 @@ export default function PerformanceTable({
         <div className="flex w-full flex-wrap items-center justify-between gap-2 min-[769px]:w-auto min-[769px]:justify-end">
           {onMultiplierChange ? (
             <div className="flex flex-wrap items-center gap-2">
+              <div className="text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: palette.muted }}>
+                Faktor
+              </div>
               {[1, 2, 3, 4, 5].map((multiplier) => {
                 const isActive = (activeMultiplier ?? 1) === multiplier;
                 return (
@@ -226,14 +245,8 @@ export default function PerformanceTable({
         </div>
       </div>
 
-      {isMobileViewport ? (
-        <div className="relative z-[1] mb-3 text-[8px] font-medium uppercase tracking-[0.14em]" style={{ color: palette.muted }}>
-          {expanded ? "Rotate dreht die Tabelle 90 Grad fuer die volle Handybreite." : "Fullscreen nutzt Querformat automatisch groesser."}
-        </div>
-      ) : null}
-
-      <div className="relative z-[1] overflow-hidden pb-1">
-        <table className="w-full table-fixed border-separate border-spacing-y-1 text-left tabular-nums min-[769px]:text-[10px] xl:text-[11px]">
+      <div className="relative z-[1] max-w-full overflow-hidden pb-1">
+        <table className="w-full max-w-full table-fixed border-separate border-spacing-y-1 text-left tabular-nums min-[769px]:text-[10px] xl:text-[11px]">
           <colgroup>
             <col className={yearColClass} />
             {MONTH_LABELS.map((month) => (
@@ -298,20 +311,18 @@ export default function PerformanceTable({
             ))}
             <tr>
               <td
-                className={`${mobileDense ? "rounded-l-2xl border-y border-l px-1 py-3 text-[8px] font-semibold uppercase tracking-[0.04em]" : compactMode ? "rounded-l-2xl border-y border-l px-1.5 py-3 text-[9px] font-semibold uppercase tracking-[0.05em]" : "rounded-l-2xl border-y border-l px-1.5 py-3 font-semibold uppercase tracking-[0.06em] min-[769px]:px-2"}`}
+                className={`${mobileDense ? "rounded-l-2xl border-y border-l px-1 py-3 text-[8px] font-semibold uppercase tracking-[0.04em] whitespace-nowrap" : compactMode ? "rounded-l-2xl border-y border-l px-1.5 py-3 text-[9px] font-semibold uppercase tracking-[0.05em] whitespace-nowrap" : "rounded-l-2xl border-y border-l px-1.5 py-3 font-semibold uppercase tracking-[0.06em] whitespace-nowrap min-[769px]:px-2"}`}
                 style={{ borderColor: palette.panelBorder, background: totalBackground, color: palette.heading }}
               >
                 Total Return
               </td>
               <td
                 colSpan={12}
-                className={`${mobileDense ? "border-y px-0.5 py-3 text-[5.5px] uppercase tracking-[0.03em]" : compactMode ? "border-y px-1 py-3 text-[6.5px] uppercase tracking-[0.04em]" : "border-y px-1 py-3 text-[7px] uppercase tracking-[0.06em] min-[769px]:px-1.5 min-[769px]:text-[8px] xl:text-[9px]"}`}
+                className={`${mobileDense ? "border-y px-0.5 py-3" : compactMode ? "border-y px-1 py-3" : "border-y px-1 py-3 min-[769px]:px-1.5"}`}
                 style={{ borderColor: palette.panelBorder, background: totalBackground, color: palette.muted }}
-              >
-                Cumulative Return - {displayMultiplier}x
-              </td>
+              />
               <td
-                className={`${mobileDense ? "rounded-r-2xl border-y border-r py-3 pl-1 pr-3 text-right font-semibold leading-none" : compactMode ? "rounded-r-2xl border-y border-r py-3 pl-2 pr-4 text-right font-semibold leading-none" : "rounded-r-2xl border-y border-r py-3 pl-2 pr-3 text-right font-semibold leading-none min-[769px]:pl-3 min-[769px]:pr-4 xl:pr-5"}`}
+                className={`${mobileDense ? "rounded-r-2xl border-y border-r py-3 pl-1 pr-4 text-right font-semibold leading-none" : compactMode ? "rounded-r-2xl border-y border-r py-3 pl-2 pr-5 text-right font-semibold leading-none" : "rounded-r-2xl border-y border-r py-3 pl-2 pr-4 text-right font-semibold leading-none min-[769px]:pl-3 min-[769px]:pr-5 xl:pr-6"}`}
                 style={{ borderColor: palette.panelBorder, background: totalBackground, color: totalRowTone }}
               >
                 <span className={totalRowValueClass}>

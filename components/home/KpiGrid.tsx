@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { stats } from "@/data/mock";
 
+import { AnimatedSvgPath } from "@/components/home/AnimatedSvgPath";
 import { Card } from "@/components/ui/Card";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 
@@ -84,11 +85,12 @@ function WaveChart({
   const strokeValue = gradientId ? `url(#${gradientId})` : strategyStroke;
   const min = Math.min(...strategyValues, ...spValues);
   const max = Math.max(...strategyValues, ...spValues);
-  const strategyPath = buildSmoothPath(strategyValues, 100, 24, 2, min, max);
-  const spPath = buildSmoothPath(spValues, 100, 24, 2, min, max);
+  const chartWidth = 82;
+  const strategyPath = buildSmoothPath(strategyValues, chartWidth, 24, 2, min, max);
+  const spPath = buildSmoothPath(spValues, chartWidth, 24, 2, min, max);
 
   return (
-    <svg viewBox="0 0 100 24" className="h-5 w-full overflow-visible">
+    <svg viewBox="0 0 108 24" className="h-5 w-full overflow-visible" shapeRendering="geometricPrecision">
       {gradientId ? (
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -99,25 +101,45 @@ function WaveChart({
       ) : null}
       <path
         d={spPath.path}
-        pathLength={100}
         fill="none"
         stroke={spStroke}
-        strokeOpacity="0.9"
+        strokeOpacity="0.62"
         strokeWidth="1.5"
         strokeDasharray="5 4"
         strokeLinecap="butt"
-        className="draw-curve-dashed"
-        style={{ animationDelay: delay }}
+      />
+      <AnimatedSvgPath
+        d={spPath.path}
+        stroke={spStroke}
+        strokeWidth={1.5}
+        opacity={0.96}
+        variant="dashReveal"
+        dashPattern="5 4"
+        linecap="butt"
+        delayMs={Number.parseFloat(delay) * 1000}
       />
       <path
         d={strategyPath.path}
-        pathLength={100}
         fill="none"
         stroke={strokeValue}
-        strokeWidth="2.5"
+        strokeOpacity="0.18"
+        strokeWidth="3.6"
         strokeLinecap="round"
-        className="draw-curve"
-        style={{ animationDelay: delay }}
+      />
+      <path
+        d={strategyPath.path}
+        fill="none"
+        stroke={strokeValue}
+        strokeOpacity="0.82"
+        strokeWidth="2.3"
+        strokeLinecap="round"
+      />
+      <AnimatedSvgPath
+        d={strategyPath.path}
+        stroke={strokeValue}
+        strokeWidth={2.5}
+        opacity={1}
+        delayMs={Number.parseFloat(delay) * 1000}
       />
 
       <image
@@ -145,7 +167,7 @@ const items = [
     label: "GESAMTRENDITE",
     labelClass: "text-[#ECDBA6]",
     value: `+${stats.totalReturn.toFixed(1)}%`,
-    note: "S&P +32% | 36% schwaecher",
+    note: "S&P +32% | 36% schwächer",
     tone: "text-[#ECDBA6]",
     chart: (
       <WaveChart
@@ -161,7 +183,7 @@ const items = [
     label: "JAHRESRENDITE",
     labelClass: "text-white",
     value: `+${stats.annualReturn.toFixed(1)}%`,
-    note: "S&P +16% | 16% schwaecher",
+    note: "S&P +16% | 16% schwächer",
     tone: "text-white",
     chart: (
       <WaveChart
@@ -176,7 +198,7 @@ const items = [
     label: "VERLUSTPHASE",
     labelClass: "text-[#FF7A7A]",
     value: `${stats.maxDrawdown.toFixed(1)}%`,
-    note: "S&P -19% | 8% schwaecher",
+    note: "S&P -19% | 8% schwächer",
     tone: "text-[#FF7A7A]",
     chart: (
       <WaveChart
@@ -211,7 +233,7 @@ export function KpiGrid() {
 
         <div className="grid grid-cols-3 gap-2">
           {items.map((item) => (
-            <Card key={item.label} className="h-[96px] rounded-[16px] p-2">
+            <Card key={item.label} className="h-[96px] rounded-[12px] p-2">
               <div className="space-y-1.5">
                 <h3
                   className={`whitespace-nowrap text-[8px] font-medium uppercase leading-none tracking-[0.08em] ${item.labelClass}`}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   CartesianGrid,
@@ -55,11 +55,24 @@ type Props = {
   isRefreshing?: boolean;
 };
 
-const CHART_MODE_OPTIONS: Array<{ value: ChartViewMode; label: string }> = [
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "yearly", label: "Yearly" },
+const CHART_MODE_OPTIONS: Array<{ value: ChartViewMode; label: string; short: string }> = [
+  { value: "monthly", label: "Monthly", short: "M" },
+  { value: "quarterly", label: "Quarterly", short: "Q" },
+  { value: "yearly", label: "Yearly", short: "Y" },
 ];
+
+const HOME_GLASS_BACKGROUND = [
+  "linear-gradient(180deg, rgba(255, 255, 255, 0.078), rgba(255, 255, 255, 0.02))",
+  "linear-gradient(135deg, rgba(255, 215, 120, 0.04), rgba(255, 255, 255, 0) 42%)",
+  "linear-gradient(180deg, rgba(16, 14, 10, 0.88), rgba(8, 8, 8, 0.82))",
+].join(", ");
+
+const HOME_GLASS_SHADOW = [
+  "inset 0 1px 0 rgba(255, 247, 227, 0.07)",
+  "inset 0 -18px 36px rgba(0, 0, 0, 0.18)",
+  "0 22px 48px rgba(0, 0, 0, 0.62)",
+  "0 0 28px rgba(236, 219, 166, 0.08)",
+].join(", ");
 
 type ActiveLine = {
   id: string;
@@ -72,6 +85,37 @@ type ActiveLine = {
   dashed?: boolean;
 };
 
+type LabelIcon =
+  | { type: "image"; src: string; alt: string }
+  | { type: "badge"; text: string; background: string; color: string };
+
+function formatDateInputValue(value: string | undefined): string {
+  if (!value) return "";
+  return value.slice(0, 10);
+}
+
+function clampIndex(value: number, max: number): number {
+  return Math.min(Math.max(value, 0), max);
+}
+
+function findClosestIndex(chartData: ChartPoint[], targetDate: string): number {
+  const target = new Date(targetDate).getTime();
+  if (!Number.isFinite(target) || chartData.length === 0) return 0;
+
+  let bestIndex = 0;
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  chartData.forEach((point, index) => {
+    const distance = Math.abs(new Date(point.fullDate).getTime() - target);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestIndex = index;
+    }
+  });
+
+  return bestIndex;
+}
+
 export default function PerformanceChart({
   chartData,
   activeMultipliers,
@@ -82,24 +126,40 @@ export default function PerformanceChart({
   activeComparisons = [],
   onComparisonChange,
   theme,
-  onRefreshData,
-  isRefreshing = false,
 }: Props) {
   const [mounted, setMounted] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
-  const [compareMenuOpen, setCompareMenuOpen] = useState(false);
-  const compareMenuRef = useRef<HTMLDivElement | null>(null);
+  const [rangeStartIndex, setRangeStartIndex] = useState(0);
+  const [rangeEndIndex, setRangeEndIndex] = useState(Math.max(chartData.length - 1, 0));
   const palette = getTrackRecordThemePalette(theme);
-  const visibleChartData = useMemo(() => getChartDataForMode(chartData, chartMode), [chartData, chartMode]);
   const sortedActiveMultipliers = useMemo(() => [...activeMultipliers].sort((left, right) => left - right), [activeMultipliers]);
   const sortedActiveComparisons = useMemo(
     () => comparisonOptions.filter((option) => activeComparisons.includes(option.id)),
     [activeComparisons, comparisonOptions],
   );
+  const maxRangeIndex = Math.max(chartData.length - 1, 0);
+  const activeRangeStartIndex = clampIndex(Math.min(rangeStartIndex, rangeEndIndex), maxRangeIndex);
+  const activeRangeEndIndex = clampIndex(Math.max(rangeStartIndex, rangeEndIndex), maxRangeIndex);
+  const rangeStartPercent = maxRangeIndex > 0 ? (activeRangeStartIndex / maxRangeIndex) * 100 : 0;
+  const rangeEndPercent = maxRangeIndex > 0 ? (activeRangeEndIndex / maxRangeIndex) * 100 : 100;
+  const rangeStartRatio = rangeStartPercent / 100;
+  const rangeWidthRatio = Math.max(rangeEndPercent - rangeStartPercent, 0) / 100;
+  const rangeStartDate = chartData[activeRangeStartIndex]?.fullDate;
+  const rangeEndDate = chartData[activeRangeEndIndex]?.fullDate;
+  const filteredChartData = useMemo(
+    () => chartData.slice(activeRangeStartIndex, activeRangeEndIndex + 1),
+    [activeRangeEndIndex, activeRangeStartIndex, chartData],
+  );
+  const visibleChartData = useMemo(() => getChartDataForMode(filteredChartData, chartMode), [filteredChartData, chartMode]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setRangeStartIndex(0);
+    setRangeEndIndex(Math.max(chartData.length - 1, 0));
+  }, [chartData.length]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -121,21 +181,6 @@ export default function PerformanceChart({
     legacyMedia.addListener?.(onChange);
     return () => legacyMedia.removeListener?.(onChange);
   }, []);
-
-  useEffect(() => {
-    if (!compareMenuOpen) return;
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (!compareMenuRef.current) return;
-      if (compareMenuRef.current.contains(event.target as Node)) return;
-      setCompareMenuOpen(false);
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, [compareMenuOpen]);
 
   const getCurveStroke = (curveKey: MultiplierKey) =>
     curveKey === "curve1x"
@@ -211,21 +256,42 @@ export default function PerformanceChart({
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) return <g />;
 
       const label = formatSignedPercent(Number(props.value ?? 0) / 100);
-      const labelWidth = Math.max(48, label.length * 6 + 14);
+      const icon = getLabelIcon(line);
+      const iconWidth = icon ? 18 : 0;
+      const labelWidth = Math.max(56, label.length * 6 + 18 + iconWidth);
       const verticalOffset = (labelOffsetIndex - (activeLines.length - 1) / 2) * 15;
+      const viewBoxX = Number(props.viewBox?.x ?? 0);
+      const viewBoxWidth = Number(props.viewBox?.width ?? 0);
+      const labelX = viewBoxWidth > 0 && cx + 8 + labelWidth > viewBoxX + viewBoxWidth - 4
+        ? cx - labelWidth - 10
+        : cx + 8;
 
       return (
         <g>
           <circle cx={cx} cy={cy} r={2.75} fill={line.stroke} stroke="rgba(6,8,11,0.95)" strokeWidth={1.15} />
-          <g transform={`translate(${cx + 8}, ${cy - 11 + verticalOffset})`}>
+          <g transform={`translate(${labelX}, ${cy - 11 + verticalOffset})`}>
             <rect
               width={labelWidth}
               height={20}
               rx={6}
-              fill="rgba(8,9,11,0.92)"
-              stroke="rgba(255,255,255,0.08)"
+              fill="rgba(8,9,11,0.94)"
+              stroke={line.stroke}
+              strokeOpacity={0.58}
+              strokeWidth={1.1}
             />
-            <text x={labelWidth / 2} y={13} textAnchor="middle" fill={line.stroke} fontSize={9.5} fontWeight={700}>
+            {icon ? (
+              icon.type === "image" ? (
+                <image href={icon.src} x={7} y={4.2} width={12} height={12} preserveAspectRatio="xMidYMid meet" />
+              ) : (
+                <g transform="translate(7, 4)">
+                  <rect width={12} height={12} rx={6} fill={icon.background} />
+                  <text x={6} y={8.4} textAnchor="middle" fill={icon.color} fontSize={5.3} fontWeight={800}>
+                    {icon.text}
+                  </text>
+                </g>
+              )
+            ) : null}
+            <text x={icon ? 24 : labelWidth / 2} y={13} textAnchor={icon ? "start" : "middle"} fill={line.stroke} fontSize={9.5} fontWeight={700}>
               {label}
             </text>
           </g>
@@ -236,12 +302,18 @@ export default function PerformanceChart({
     return LastPointRenderer;
   };
 
-  const activeComparisonLabels = sortedActiveComparisons.map((comparison) => comparison.label);
-  const compareButtonLabel = activeComparisons.length === 0
-    ? "Compare"
-    : activeComparisons.length <= 2
-      ? activeComparisonLabels.join(" + ")
-      : `Compare ${activeComparisons.length}`;
+  const getLabelIcon = (line: ActiveLine): LabelIcon | null => {
+    if (line.dataKey === "compareSp500") {
+      return { type: "image", src: "/assets/brand/SP500.png", alt: "S&P 500" };
+    }
+
+    if (line.dataKey === "compareDax40") {
+      return { type: "badge", text: "DAX", background: "#9d5cff", color: "#ffffff" };
+    }
+
+    return { type: "image", src: "/assets/brand/CAPITALIFE_ICON.png", alt: "Capitalife" };
+  };
+
   const chartLineType = chartMode === "monthly" || chartMode === "quarterly" || chartMode === "yearly" ? "linear" : "monotone";
   const tooltipLabelFormatter = (_value: unknown, payload?: ReadonlyArray<{ payload?: ChartPoint }>) => {
     const point = payload?.[0]?.payload;
@@ -263,27 +335,48 @@ export default function PerformanceChart({
 
   return (
     <section
-      className="relative flex h-full min-h-0 flex-col overflow-visible rounded-[28px] border px-[22px] pb-[22px] pt-[22px] backdrop-blur-[18px]"
+      className="relative flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden rounded-[28px] border px-[18px] pb-[20px] pt-[20px] min-[769px]:px-[22px] min-[769px]:pb-[22px] min-[769px]:pt-[22px] backdrop-blur-[18px]"
       style={{
-        background: palette.panelBackgroundStrong,
-        borderColor: palette.panelBorder,
-        boxShadow: palette.panelShadow,
+        background: [
+          "linear-gradient(135deg, rgba(255,228,148,0.14) 0%, rgba(255,228,148,0.035) 26%, rgba(255,255,255,0.014) 46%, rgba(8,8,10,0) 72%)",
+          HOME_GLASS_BACKGROUND,
+          "radial-gradient(circle at 78% 2%, rgba(236,219,166,0.18), transparent 30%)",
+        ].join(", "),
+        borderColor: "rgba(236,219,166,0.18)",
+        boxShadow: [
+          HOME_GLASS_SHADOW,
+          "0 0 36px rgba(236,219,166,0.08)",
+        ].join(", "),
       }}
     >
-      <div className="relative z-[1] mb-6 flex flex-col items-start gap-4">
-        <div className="space-y-2">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
-            Performance
+      <div
+        className="pointer-events-none absolute inset-0 rounded-[28px]"
+        style={{
+          background: "linear-gradient(135deg, rgba(255,221,140,0.02), transparent 34%, rgba(255,255,255,0.012) 68%, transparent)",
+        }}
+      />
+      <div className="relative z-[1] mb-5 flex min-w-0 flex-col items-start gap-4">
+        <div className="flex w-full items-start justify-between gap-3">
+          <div className="space-y-2">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+              Performance
+            </div>
+            <div className="text-[14px] font-semibold tracking-[-0.02em] min-[769px]:text-[15px]" style={{ color: palette.heading }}>
+              Track Record Overview
+            </div>
           </div>
-          <div className="text-[14px] font-semibold tracking-[-0.02em] min-[769px]:text-[15px]" style={{ color: palette.heading }}>
-            Track Record Overview
-          </div>
+
+          <img src="/assets/brand/CAPITALIFE_ICON.png" alt="Capitalife" className="h-8 w-8 shrink-0 object-contain opacity-95" />
         </div>
 
-        <div className="flex w-full flex-col gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
+        <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden pb-1">
           <div
-            className="inline-flex flex-wrap items-center gap-2 rounded-full border p-1"
-            style={{ borderColor: palette.panelBorder, background: "rgba(255,255,255,0.02)" }}
+            className="inline-flex h-10 w-full min-w-0 max-w-[166px] shrink-0 items-center gap-1 rounded-full border p-1 min-[769px]:max-w-[190px]"
+            style={{
+              borderColor: "rgba(236,219,166,0.12)",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015))",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+            }}
           >
             {CHART_MODE_OPTIONS.map((option) => {
               const isActive = chartMode === option.value;
@@ -292,141 +385,153 @@ export default function PerformanceChart({
                   key={option.value}
                   type="button"
                   onClick={() => onChartModeChange(option.value)}
-                  className="rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition"
+                  className="inline-flex min-h-[34px] items-center overflow-hidden rounded-full px-2.5 py-2 text-[8px] font-semibold uppercase tracking-[0.12em] outline-none transition-all duration-300"
                   style={{
                     border: "1px solid transparent",
                     borderColor: isActive ? "rgba(236,219,166,0.22)" : "transparent",
-                    background: isActive ? "rgba(236,219,166,0.08)" : "transparent",
-                    boxShadow: isActive ? "0 0 14px rgba(236,219,166,0.08)" : "none",
+                    background: isActive ? "linear-gradient(180deg, rgba(247,233,191,0.34), rgba(217,184,76,0.16))" : "transparent",
+                    boxShadow: isActive ? "0 0 14px rgba(236,219,166,0.12)" : "none",
                     color: isActive ? palette.heading : palette.muted,
+                    minWidth: isActive ? 96 : 28,
                   }}
                 >
-                  {option.label}
+                  <span>{option.short}</span>
+                  <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${isActive ? "ml-1 max-w-[76px] opacity-100" : "ml-0 max-w-0 opacity-0"}`}>
+                    {option.label}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <div
-            className="relative z-[30]"
-            ref={compareMenuRef}
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={compareMenuOpen}
-              onMouseDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-              }}
-              onClick={() => setCompareMenuOpen((current) => !current)}
-              className="relative z-[31] flex h-8 cursor-pointer items-center justify-center rounded-full border px-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition"
-              style={{
-                borderColor: compareMenuOpen || activeComparisons.length > 0 ? "rgba(236,219,166,0.18)" : palette.panelBorder,
-                background: compareMenuOpen || activeComparisons.length > 0 ? "rgba(236,219,166,0.06)" : "rgba(255,255,255,0.02)",
-                color: activeComparisons.length > 0 ? palette.heading : palette.muted,
-                boxShadow: compareMenuOpen || activeComparisons.length > 0 ? `0 0 12px ${palette.panelGlow}` : "none",
-              }}
-            >
-              {compareButtonLabel}
-            </button>
-            {compareMenuOpen ? (
-              <div
-                className="absolute right-0 top-9 z-[40] min-w-[220px] rounded-[14px] border p-2 shadow-2xl"
-                style={{ borderColor: palette.panelBorder, background: "rgba(6,10,16,0.96)" }}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }}
-              >
-                <div className="mb-1.5 px-1 text-[9px] font-semibold uppercase tracking-[0.14em]" style={{ color: palette.muted }}>
-                  Compare Assets
-                </div>
-                {comparisonOptions.map((comparison) => {
-                  const isActive = activeComparisons.includes(comparison.id);
-                  const comparisonColor = getComparisonStroke(comparison.key, comparison.color);
-                  return (
-                    <button
-                      key={comparison.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      onMouseDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                      }}
-                      onClick={() => toggleComparison(comparison.id)}
-                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-[10px] border px-2.5 py-2 text-left text-[11px] transition"
-                      style={{
-                        borderColor: isActive ? `${comparisonColor}88` : "transparent",
-                        background: isActive ? `${comparisonColor}18` : "transparent",
-                        color: isActive ? comparisonColor : palette.text,
-                        opacity: comparison.isLoaded ? 1 : 0.78,
-                        boxShadow: isActive ? `0 0 12px ${comparisonColor}22` : "none",
-                      }}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: comparisonColor }} />
-                        <span>{comparison.label}</span>
-                      </span>
-                      <span className="inline-flex items-center gap-2">
-                        <span style={{ color: isActive ? comparisonColor : palette.muted }}>
-                          {comparison.isLoaded ? comparison.correlation.toFixed(2) : "Loading"}
-                        </span>
-                        <span
-                          className="inline-flex min-w-[18px] items-center justify-center text-[12px] font-semibold"
-                          style={{ color: isActive ? comparisonColor : palette.muted }}
-                        >
-                          {isActive ? "ON" : "+"}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : null}
+          <div className="inline-flex min-w-0 flex-1 items-center gap-1.5">
+            <div className="pl-1 pr-0.5 text-[8px] font-semibold uppercase tracking-[0.18em]" style={{ color: palette.muted }}>
+              Compare
+            </div>
+            {comparisonOptions.map((comparison) => {
+              const isActive = activeComparisons.includes(comparison.id);
+              const comparisonColor = getComparisonStroke(comparison.key, comparison.color);
+              return (
+                <button
+                  key={comparison.id}
+                  type="button"
+                  onClick={() => toggleComparison(comparison.id)}
+                  className="inline-flex min-h-[34px] items-center overflow-hidden rounded-full border px-2.5 py-2 text-[8px] font-semibold uppercase tracking-[0.1em] outline-none transition-all duration-300"
+                  style={{
+                    borderColor: isActive ? `${comparisonColor}66` : palette.panelBorder,
+                    background: isActive
+                      ? `linear-gradient(180deg, ${comparisonColor}2e, ${comparisonColor}14)`
+                      : "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                    color: isActive ? palette.heading : palette.muted,
+                    boxShadow: isActive ? `0 0 16px ${comparisonColor}22` : "none",
+                  }}
+                >
+                  <span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full" style={{ background: comparisonColor, boxShadow: `0 0 10px ${comparisonColor}` }} />
+                  <span>{comparison.shortLabel}</span>
+                  <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${isActive ? "ml-1.5 max-w-[64px] opacity-100" : "ml-0 max-w-0 opacity-0"}`}>
+                    {comparison.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-1.5 min-[769px]:gap-2">
+            <div className="text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: palette.muted }}>
+              Multiplier / Faktor
+            </div>
+            {CURVES.map((curve, index) => {
+              const multiplier = index + 1;
+              const isActive = sortedActiveMultipliers.includes(multiplier);
+
+              return (
+                <button
+                  key={curve.key}
+                  type="button"
+                  onClick={() => toggleMultiplier(multiplier)}
+                  className="inline-flex h-8 min-w-[32px] items-center justify-center rounded-full border px-2 text-[9px] font-semibold uppercase tracking-[0.08em] transition-all duration-300"
+                  style={{
+                    borderColor: isActive ? "rgba(236,219,166,0.22)" : palette.panelBorder,
+                    background: isActive
+                      ? "linear-gradient(180deg, rgba(247,233,191,0.28), rgba(217,184,76,0.14))"
+                      : "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015))",
+                    color: isActive ? palette.heading : palette.muted,
+                    boxShadow: isActive ? `0 0 18px rgba(236,219,166,0.16)` : "none",
+                    transform: isActive ? "scale(1.04)" : "scale(1)",
+                  }}
+                >
+                  {curve.label}
+                </button>
+              );
+            })}
           </div>
 
-          {onRefreshData ? (
-            <button
-              type="button"
-              onClick={onRefreshData}
-              className="inline-flex h-7 items-center justify-center rounded-full border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition"
-              style={{
-                borderColor: palette.panelBorder,
-                background: "rgba(255,255,255,0.02)",
-                color: palette.muted,
-              }}
-            >
-              {isRefreshing ? "Refreshing" : "Refresh"}
-            </button>
-          ) : null}
+          <div className="flex w-full min-w-0 items-start gap-2.5">
+            <div className="min-w-0 basis-[84px]">
+              <input
+                type="date"
+                value={formatDateInputValue(rangeStartDate)}
+                min={formatDateInputValue(chartData[0]?.fullDate)}
+                max={formatDateInputValue(rangeEndDate)}
+                onChange={(event) => setRangeStartIndex(Math.min(findClosestIndex(chartData, event.target.value), activeRangeEndIndex))}
+                className="h-8 w-full max-w-full rounded-[12px] border bg-transparent px-1 text-center text-[16px] text-white outline-none min-[769px]:text-[13px]"
+                style={{ borderColor: "rgba(236,219,166,0.12)" }}
+              />
+            </div>
 
-          {CURVES.map((curve, index) => {
-            const multiplier = index + 1;
-            const isActive = sortedActiveMultipliers.includes(multiplier);
+            <div className="min-w-0 flex-1">
+              <div className="relative h-[52px] px-1.5">
+                <div className="pointer-events-none absolute inset-x-2 top-[16px] h-[2px] rounded-full bg-white/10" />
+                <div
+                  className="pointer-events-none absolute top-[16px] h-[2px] rounded-full"
+                  style={{
+                    left: `calc(8px + ${rangeStartRatio} * (100% - 16px))`,
+                    width: `calc(${rangeWidthRatio} * (100% - 16px))`,
+                    background: "linear-gradient(90deg, rgba(247,233,191,0.95), rgba(217,184,76,0.82))",
+                    boxShadow: "0 0 16px rgba(236,219,166,0.2)",
+                  }}
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={maxRangeIndex}
+                  value={activeRangeStartIndex}
+                  onChange={(event) => setRangeStartIndex(Math.min(Number(event.target.value), activeRangeEndIndex))}
+                  className="performance-range performance-range-start absolute inset-x-0 top-0 h-10 w-full appearance-none bg-transparent"
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={maxRangeIndex}
+                  value={activeRangeEndIndex}
+                  onChange={(event) => setRangeEndIndex(Math.max(Number(event.target.value), activeRangeStartIndex))}
+                  className="performance-range performance-range-end absolute inset-x-0 top-0 h-10 w-full appearance-none bg-transparent"
+                />
+                <div className="pointer-events-none absolute inset-x-2 top-[37px] flex justify-between text-[6.5px] font-medium tracking-[0.08em]" style={{ color: "rgba(255,255,255,0.38)" }}>
+                  <span>{formatDateInputValue(rangeStartDate).slice(2).replaceAll("-", ".")}</span>
+                  <span>{formatDateInputValue(rangeEndDate).slice(2).replaceAll("-", ".")}</span>
+                </div>
+              </div>
+            </div>
 
-            return (
-              <button
-                key={curve.key}
-                type="button"
-                onClick={() => toggleMultiplier(multiplier)}
-                className="inline-flex h-8 min-w-[36px] items-center justify-center rounded-full border px-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] transition"
-                style={{
-                  borderColor: isActive ? "rgba(236,219,166,0.2)" : palette.panelBorder,
-                  background: isActive ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
-                  color: isActive ? palette.heading : palette.muted,
-                  boxShadow: isActive ? `0 0 12px ${palette.panelGlow}` : "none",
-                }}
-              >
-                {curve.label}
-              </button>
-            );
-          })}
+            <div className="min-w-0 basis-[84px]">
+              <input
+                type="date"
+                value={formatDateInputValue(rangeEndDate)}
+                min={formatDateInputValue(rangeStartDate)}
+                max={formatDateInputValue(chartData[maxRangeIndex]?.fullDate)}
+                onChange={(event) => setRangeEndIndex(Math.max(findClosestIndex(chartData, event.target.value), activeRangeStartIndex))}
+                className="h-8 w-full max-w-full rounded-[12px] border bg-transparent px-1 text-center text-[16px] text-white outline-none min-[769px]:text-[13px]"
+                style={{ borderColor: "rgba(236,219,166,0.12)" }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="relative z-[1] min-h-[348px] flex-1 overflow-visible pb-2 min-[769px]:min-h-[436px]">
+      <div className="relative z-[1] flex min-h-[332px] flex-1 flex-col overflow-hidden min-[769px]:min-h-[420px]">
         {sortedActiveComparisons.length ? (
           <div className="mb-3 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.14em]">
             {sortedActiveComparisons.map((comparison) => {
@@ -448,16 +553,16 @@ export default function PerformanceChart({
             })}
           </div>
         ) : null}
-        <div className="relative h-full">
+        <div className="relative min-h-0 flex-1">
           {mounted ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={visibleChartData}
                 margin={{
                   top: isMobileViewport ? 8 : 10,
-                  right: isMobileViewport ? (activeLines.length > 3 ? 92 : 72) : (activeLines.length > 3 ? 120 : 84),
+                  right: isMobileViewport ? (activeLines.length > 3 ? 116 : 88) : (activeLines.length > 3 ? 132 : 94),
                   left: isMobileViewport ? -12 : -2,
-                  bottom: isMobileViewport ? 24 : 16,
+                  bottom: isMobileViewport ? 22 : 24,
                 }}
               >
                 <CartesianGrid stroke={palette.grid} strokeDasharray="2 10" vertical={false} />
@@ -523,9 +628,10 @@ export default function PerformanceChart({
             <div className="h-full" />
           )}
 
-          <div className="pointer-events-none absolute bottom-14 right-1 z-[2] min-[769px]:bottom-12 min-[769px]:right-3">
-            <img src={palette.watermarkLogo} alt="" className="h-4 w-auto opacity-18 min-[769px]:h-7 min-[769px]:opacity-22" />
-          </div>
+        </div>
+
+        <div className="pointer-events-none mt-1 flex justify-center px-3 min-[769px]:mt-2 min-[769px]:px-4">
+          <img src={palette.watermarkLogo} alt="" className="h-6 w-auto max-w-[52%] opacity-100 brightness-110 min-[769px]:h-7" />
         </div>
       </div>
     </section>

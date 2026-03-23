@@ -34,7 +34,7 @@ export default function SicherheitPage() {
       </Card>
 
       <Card className="app-section-card">
-        <SectionTitle eyebrow="Liquiditaet" title="Top-Liquiditaetsanbieter" />
+        <SectionTitle eyebrow="Liquidität" title="Top-Liquiditätsanbieter" />
         <div className="mt-[18px] grid grid-cols-3 gap-2">
           {liquidityProviders.map((provider) => (
             <Card key={provider} className="app-mini-card flex items-center justify-center text-center">

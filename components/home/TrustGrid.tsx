@@ -31,7 +31,7 @@ const trustItems: TrustItem[] = [
     logo: "/assets/logos/roboforex.png"
   },
   {
-    title: "Globale Liquiditaetsanbieter",
+    title: "Globale Liquiditätsanbieter",
     icon: <Landmark className="h-3.5 w-3.5 text-[#ECDBA6]" strokeWidth={1.8} />,
     subtitle: "Tier-1 Providers",
     flag: "\u{1F1FA}\u{1F1F8}"
@@ -39,7 +39,7 @@ const trustItems: TrustItem[] = [
   {
     title: "Kein Zugriff auf Investorengelder",
     icon: <ShieldBan className="h-3.5 w-3.5 text-[#ECDBA6]" strokeWidth={1.8} />,
-    subtitle: "Europaeische Banken",
+    subtitle: "Europäische Banken",
     flag: "\u{1F1EA}\u{1F1FA}"
   },
   {

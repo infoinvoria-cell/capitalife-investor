@@ -29,7 +29,7 @@ export function AppShell({
         <ShellViewportController />
         <div className="relative z-10 h-full">
           <main
-            className={`main-content mobile-scroll overflow-y-auto ${
+            className={`main-content mobile-scroll overflow-x-hidden overflow-y-auto ${
               disableDefaultContentPadding ? "" : "px-4 pt-[max(0.7rem,env(safe-area-inset-top))]"
             } ${contentClassName}`.trim()}
           >

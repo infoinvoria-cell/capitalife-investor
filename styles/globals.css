@@ -20,6 +20,7 @@
   body {
     height: 100%;
     overflow-x: hidden;
+    max-width: 100%;
     width: 100%;
   }
 
@@ -31,6 +32,7 @@
     font-family: var(--font-figtree), Inter, system-ui, sans-serif;
     background: linear-gradient(145deg, #050505, #0a0a0a, #0f0f0f);
     overscroll-behavior: none;
+    overscroll-behavior-x: none;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -45,6 +47,7 @@
     display: flex;
     height: 100dvh;
     min-height: 100dvh;
+    max-width: 100%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -56,6 +59,7 @@
   .app-container {
     position: relative;
     height: 100dvh;
+    max-width: 100%;
     width: min(420px, 100vw);
     overflow: hidden;
     background: linear-gradient(145deg, #050505, #0a0a0a, #0f0f0f);
@@ -126,6 +130,7 @@
 
   .main-content {
     height: 100%;
+    max-width: 100%;
     min-height: calc(100dvh - var(--bottom-nav-height));
     padding-bottom: calc(var(--overlay-stack-offset) + env(safe-area-inset-bottom));
   }
@@ -139,12 +144,14 @@
     display: flex;
     justify-content: center;
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none;
   }
 
   .bottom-nav > * {
     width: min(420px, 100vw);
+    pointer-events: auto;
   }
 
   .risk-note {
@@ -174,18 +181,26 @@
   }
 
   .track-record-content {
-    height: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
     overflow-y: auto;
+    touch-action: pan-y;
   }
 
   .track-record-content .page-transition {
-    height: 100%;
+    min-height: 100%;
+    height: auto;
+    max-width: 100%;
   }
 
   .page-stack {
     display: flex;
     flex-direction: column;
     gap: 18px;
+    min-height: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .app-section-card {
@@ -259,14 +274,69 @@
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   }
 
+  .performance-range {
+    touch-action: none;
+    pointer-events: none;
+  }
+
+  .performance-range-start {
+    z-index: 4;
+  }
+
+  .performance-range-end {
+    z-index: 5;
+  }
+
+  .performance-range::-webkit-slider-runnable-track {
+    height: 28px;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .performance-range::-webkit-slider-thumb {
+    appearance: none;
+    pointer-events: auto;
+    position: relative;
+    height: 28px;
+    width: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(236, 219, 166, 0.34);
+    background: linear-gradient(180deg, #f7e9bf 0%, #d9b84c 100%);
+    box-shadow: 0 0 18px rgba(236, 219, 166, 0.28);
+    cursor: pointer;
+  }
+
+  .performance-range::-moz-range-track {
+    height: 28px;
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .performance-range::-moz-range-thumb {
+    pointer-events: auto;
+    height: 28px;
+    width: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(236, 219, 166, 0.34);
+    background: linear-gradient(180deg, #f7e9bf 0%, #d9b84c 100%);
+    box-shadow: 0 0 18px rgba(236, 219, 166, 0.28);
+    cursor: pointer;
+  }
+
   .ivq-terminal-page {
     min-height: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     padding: 18px 14px 0;
     background: transparent;
   }
 
   .ivq-track-record-page {
+    max-width: 100%;
+    overflow-x: hidden;
     padding-top: 12px;
+    touch-action: pan-y;
   }
 
   .marquee-mask {

@@ -16,7 +16,7 @@ export default async function Page() {
       riskNote={<RiskDisclosure />}
       contentClassName="track-record-content"
       disableDefaultContentPadding
-      transitionClassName="h-full"
+      transitionClassName="page-stack pb-1"
     >
       <TrackRecordPage initialModel={model} />
     </AppShell>

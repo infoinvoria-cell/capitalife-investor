@@ -6,6 +6,19 @@ import type { TrackRecordTheme } from "@/components/track-record/metrics";
 import Sparkline from "@/components/track-record/Sparkline";
 import { getTrackRecordThemePalette } from "@/components/track-record/theme";
 
+const HOME_GLASS_BACKGROUND = [
+  "linear-gradient(180deg, rgba(255, 255, 255, 0.078), rgba(255, 255, 255, 0.02))",
+  "linear-gradient(135deg, rgba(255, 215, 120, 0.04), rgba(255, 255, 255, 0) 42%)",
+  "linear-gradient(180deg, rgba(16, 14, 10, 0.88), rgba(8, 8, 8, 0.82))",
+].join(", ");
+
+const HOME_GLASS_SHADOW = [
+  "inset 0 1px 0 rgba(255, 247, 227, 0.07)",
+  "inset 0 -18px 36px rgba(0, 0, 0, 0.18)",
+  "0 22px 48px rgba(0, 0, 0, 0.62)",
+  "0 0 28px rgba(236, 219, 166, 0.08)",
+].join(", ");
+
 type Tone = "positive" | "negative" | "neutral" | "success";
 
 type Props = {
@@ -49,9 +62,9 @@ export default function KpiCard({
     <article
       className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border p-3.5 backdrop-blur-[18px] min-[769px]:p-4"
       style={{
-        background: palette.panelBackground,
-        borderColor: palette.panelBorder,
-        boxShadow: palette.panelShadow,
+        background: HOME_GLASS_BACKGROUND,
+        borderColor: "rgba(236,219,166,0.18)",
+        boxShadow: HOME_GLASS_SHADOW,
       }}
     >
       <div className="relative z-[1] mb-2 flex items-start justify-between gap-2">

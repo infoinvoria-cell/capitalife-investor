@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import comparisonTimeseries from "@/data/track-record-comparison-timeseries.json";
+import { PartnerMarquee } from "@/components/home/PartnerMarquee";
 import DonutChart from "@/components/track-record/DonutChart";
 import KpiCard from "@/components/track-record/KpiCard";
 import PerformanceChart from "@/components/track-record/PerformanceChart";
@@ -29,6 +31,19 @@ type Props = {
   initialModel: TrackRecordModel;
 };
 
+const HOME_GLASS_BACKGROUND = [
+  "linear-gradient(180deg, rgba(255, 255, 255, 0.078), rgba(255, 255, 255, 0.02))",
+  "linear-gradient(135deg, rgba(255, 215, 120, 0.04), rgba(255, 255, 255, 0) 42%)",
+  "linear-gradient(180deg, rgba(16, 14, 10, 0.88), rgba(8, 8, 8, 0.82))",
+].join(", ");
+
+const HOME_GLASS_SHADOW = [
+  "inset 0 1px 0 rgba(255, 247, 227, 0.07)",
+  "inset 0 -18px 36px rgba(0, 0, 0, 0.18)",
+  "0 22px 48px rgba(0, 0, 0, 0.62)",
+  "0 0 28px rgba(236, 219, 166, 0.08)",
+].join(", ");
+
 function comparisonPayloadForAsset(assetId: ComparisonAssetId) {
   return comparisonTimeseries[assetId] ?? null;
 }
@@ -45,6 +60,8 @@ export default function TrackRecordPage({ initialModel }: Props) {
   const [theme, setTheme] = useState<TrackRecordTheme>("dark");
   const [comparisonSeries, setComparisonSeries] = useState<ComparisonSeries[]>([]);
   const [isRefreshingComparisons, setIsRefreshingComparisons] = useState(false);
+  const [showHeadlineMetrics, setShowHeadlineMetrics] = useState(false);
+  const [showRiskMetrics, setShowRiskMetrics] = useState(false);
   const palette = getTrackRecordThemePalette(theme);
   const model = initialModel;
 
@@ -252,9 +269,9 @@ export default function TrackRecordPage({ initialModel }: Props) {
 
   return (
     <main className="ivq-terminal-page ivq-track-record-page">
-      <div className="mx-auto flex h-full w-full max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
-        <div className="grid h-full min-h-0 gap-6 xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
-          <section className="grid min-h-0 gap-6 xl:grid-rows-[minmax(0,1fr)_auto]">
+      <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
+          <section className="grid gap-6">
             <PerformanceChart
               chartData={chartDataWithComparisons}
               activeMultipliers={activeMultipliers}
@@ -290,147 +307,191 @@ export default function TrackRecordPage({ initialModel }: Props) {
               onMultiplierChange={setTableMultiplier}
               theme={theme}
             />
+
+            <PartnerMarquee
+              items={[
+                { src: "/assets/logos/copyfx.png", alt: "CopyFX" },
+                { src: "/assets/logos/darwin.png", alt: "Darwinex" },
+                { src: "/assets/logos/myfxbook.png", alt: "Myfxbook" },
+                { src: "/assets/logos/roboforex.png", alt: "RoboForex" },
+              ]}
+            />
           </section>
 
-          <aside className="grid min-h-0 gap-6 xl:grid-rows-[minmax(0,0.58fr)_minmax(0,0.42fr)]">
-            <div className="grid min-h-0 grid-cols-2 gap-2.5 xl:auto-rows-fr">
-              <KpiCard
-                title="Annual Avg Return"
-                value={formatSignedPercent(model.annualAverageReturn)}
-                footer="Compounded yearly average"
-                tone={model.annualAverageReturn >= 0 ? "positive" : "negative"}
-                theme={theme}
-              >
-                <div className="grid min-h-[86px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 min-[769px]:grid-cols-[minmax(0,1fr)_78px] min-[769px]:gap-3">
-                  <div className="space-y-1 text-[9px] leading-[1.12] min-[769px]:space-y-1.5 min-[769px]:text-[10px]" style={{ color: palette.muted }}>
-                    <div>Annualisiert auf 12 Monate</div>
-                    <div className="text-[8px] min-[769px]:text-[9px]" style={{ color: palette.heading }}>
-                      Skala 0% bis 40%
-                    </div>
-                    <div className="text-[8px] min-[769px]:text-[9px]" style={{ color: model.annualAverageReturn >= 0 ? palette.positive : palette.negative }}>
-                      Zielwert {formatSignedPercent(model.annualAverageReturn)}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-[auto_20px] items-start gap-1.5 justify-self-end min-[769px]:grid-cols-[auto_28px] min-[769px]:gap-2">
-                    <div className="flex h-[62px] flex-col items-end justify-between text-[7px] font-semibold uppercase tracking-[0.08em] min-[769px]:h-[78px] min-[769px]:text-[8px]" style={{ color: palette.muted }}>
-                      <span>40</span>
-                      <span>20</span>
-                      <span>0</span>
-                    </div>
-                    <div className="relative h-[62px] w-[20px] overflow-hidden rounded-full border min-[769px]:h-[78px] min-[769px]:w-[28px]" style={{ borderColor: palette.panelBorder, background: "rgba(255,255,255,0.04)" }}>
-                      <div
-                        className="absolute bottom-0 inset-x-[3px] rounded-full min-[769px]:inset-x-[4px]"
-                        style={{
-                          height: `${annualAverageScore}%`,
-                          background:
-                            model.annualAverageReturn >= 0
-                              ? theme === "dark"
-                                ? "linear-gradient(180deg, #fff4d6 0%, #d6c38f 55%, #9e7b3f 100%)"
-                                : "linear-gradient(180deg, #dce8ff 0%, #78a8ff 55%, #315dc5 100%)"
-                              : "linear-gradient(180deg, #ffcacb 0%, #e05656 100%)",
-                          boxShadow:
-                            model.annualAverageReturn >= 0
-                              ? `0 0 16px ${palette.panelGlow}`
-                              : "0 0 16px rgba(224,86,86,0.24)"
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </KpiCard>
-
-              {headlineCards.map((card) => (
-                <KpiCard
-                  key={card.title}
-                  title={card.title}
-                  value={card.value}
-                  sparkline={card.sparkline}
-                  footer={card.footer}
-                  tone={card.tone}
-                  theme={theme}
-                />
-              ))}
-
-              <KpiCard title="Winrate" value={formatPercent(model.winRate)} footer={`${model.winningTrades} winning trades`} theme={theme}>
-                <div className="grid min-h-[84px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 pt-0 min-[769px]:grid-cols-[minmax(0,1fr)_72px] min-[769px]:gap-2.5">
-                  <div className="min-w-0 space-y-1 text-[9px] leading-[1.08] min-[769px]:text-[10px]" style={{ color: palette.muted }}>
-                    <div>{model.winningTrades} winning trades</div>
-                    <div>{model.losingTrades} losing trades</div>
-                    <div className="pt-0.5 text-[8px] leading-[1.12] min-[769px]:text-[9px]" style={{ color: palette.heading }}>
-                      Strike rate {formatPercent(model.winRate)}
-                    </div>
-                  </div>
-                  <div className="h-[52px] w-[52px] justify-self-end self-start min-[769px]:-translate-y-1 min-[769px]:h-[70px] min-[769px]:w-[70px]">
-                    <DonutChart
-                      segments={tradeOutcomeSegments}
-                      centerLabel="Win"
-                      centerValue={formatPercent(model.winRate)}
-                      theme={theme}
-                    />
-                  </div>
-                </div>
-              </KpiCard>
-
-              <KpiCard title="Trades" value={String(model.trades)} footer={model.tradeBreakdownText} theme={theme}>
-                <div className="grid min-h-[88px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 pt-0 min-[769px]:grid-cols-[minmax(0,1fr)_72px] min-[769px]:gap-2.5">
-                  <div className="min-w-0 space-y-0.5 text-[8px] leading-[1.02] min-[769px]:text-[9px]" style={{ color: palette.muted }}>
-                    {model.tradesByYear.map((entry) => (
-                      <div key={entry.year} className="grid grid-cols-[auto_1fr] items-baseline gap-x-2">
-                        <span>{entry.year}</span>
-                        <span className="justify-self-end font-semibold leading-none" style={{ color: palette.heading }}>
-                          {entry.count}
-                        </span>
-                      </div>
-                    ))}
-                    <div className="pt-1 text-[8px] leading-[1.08] min-[769px]:text-[9px]">
-                      {model.winningTrades} winners / {model.losingTrades} losers
-                    </div>
-                  </div>
-                  <div className="h-[52px] w-[52px] justify-self-end self-start min-[769px]:-translate-y-1 min-[769px]:h-[70px] min-[769px]:w-[70px]">
-                    <DonutChart segments={tradeOutcomeSegments} centerLabel="Trades" centerValue={String(model.trades)} theme={theme} />
-                  </div>
-                </div>
-              </KpiCard>
-
-              <KpiCard
-                title="Long / Short Ratio"
-                value={`${model.longTrades} / ${model.shortTrades}`}
-                footer={`Ratio ${model.longShortRatio.toFixed(2)}x`}
-                theme={theme}
-              >
-                <div className="grid min-h-[84px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 pt-0 min-[769px]:grid-cols-[minmax(0,1fr)_72px] min-[769px]:gap-2.5">
-                  <div className="min-w-0 space-y-1 text-[9px] leading-[1.08] min-[769px]:text-[10px]">
-                    <div style={{ color: palette.text }}>
-                      Long <span style={{ color: palette.accent }}>{model.longTrades}</span>
-                    </div>
-                    <div style={{ color: palette.text }}>
-                      Short <span style={{ color: palette.accentSoft }}>{model.shortTrades}</span>
-                    </div>
-                    <div className="pt-0.5 text-[8px] leading-[1.12] min-[769px]:text-[9px]" style={{ color: palette.muted }}>
-                      Ratio {model.longShortRatio.toFixed(2)}x
-                    </div>
-                  </div>
-                  <div className="h-[52px] w-[52px] justify-self-end self-start min-[769px]:-translate-y-1 min-[769px]:h-[70px] min-[769px]:w-[70px]">
-                    <DonutChart
-                      segments={directionSegments}
-                      centerLabel="L / S"
-                      centerValue={`${model.longTrades}/${model.shortTrades}`}
-                      theme={theme}
-                    />
-                  </div>
-                </div>
-              </KpiCard>
-            </div>
-
+          <aside className="grid gap-4">
             <section
-              className="relative flex min-h-0 flex-col overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[18px]"
+              className="relative overflow-hidden rounded-[24px] border p-[18px] backdrop-blur-[18px]"
               style={{
-                background: palette.panelBackground,
-                borderColor: palette.panelBorder,
-                boxShadow: palette.panelShadow
+                background: HOME_GLASS_BACKGROUND,
+                borderColor: "rgba(236,219,166,0.16)",
+                boxShadow: HOME_GLASS_SHADOW
               }}
             >
-              <div className="relative z-[1] mb-6">
+              <button
+                type="button"
+                onClick={() => setShowHeadlineMetrics((value) => !value)}
+                className="flex w-full items-center justify-between gap-3 text-left"
+              >
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+                    Data Layer
+                  </div>
+                  <div className="mt-1 text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
+                    KPI Statistiken
+                  </div>
+                </div>
+                {showHeadlineMetrics ? (
+                  <ChevronUp className="h-4 w-4 shrink-0" style={{ color: palette.heading }} />
+                ) : (
+                  <ChevronDown className="h-4 w-4 shrink-0" style={{ color: palette.heading }} />
+                )}
+              </button>
+
+              {showHeadlineMetrics ? (
+                <div className="mt-4 grid min-h-0 grid-cols-2 gap-2.5 xl:auto-rows-fr">
+                  <KpiCard
+                    title="Annual Avg Return"
+                    value={formatSignedPercent(model.annualAverageReturn)}
+                    footer="Compounded yearly average"
+                    tone={model.annualAverageReturn >= 0 ? "positive" : "negative"}
+                    theme={theme}
+                  >
+                    <div className="grid min-h-[86px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 min-[769px]:grid-cols-[minmax(0,1fr)_78px] min-[769px]:gap-3">
+                      <div className="space-y-1 text-[9px] leading-[1.12] min-[769px]:space-y-1.5 min-[769px]:text-[10px]" style={{ color: palette.muted }}>
+                        <div>Annualisiert auf 12 Monate</div>
+                        <div className="text-[8px] min-[769px]:text-[9px]" style={{ color: palette.heading }}>
+                          Skala 0% bis 40%
+                        </div>
+                        <div className="text-[8px] min-[769px]:text-[9px]" style={{ color: model.annualAverageReturn >= 0 ? palette.positive : palette.negative }}>
+                          Zielwert {formatSignedPercent(model.annualAverageReturn)}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-[auto_20px] items-start gap-1.5 justify-self-end min-[769px]:grid-cols-[auto_28px] min-[769px]:gap-2">
+                        <div className="flex h-[62px] flex-col items-end justify-between text-[7px] font-semibold uppercase tracking-[0.08em] min-[769px]:h-[78px] min-[769px]:text-[8px]" style={{ color: palette.muted }}>
+                          <span>40</span>
+                          <span>20</span>
+                          <span>0</span>
+                        </div>
+                        <div className="relative h-[62px] w-[20px] overflow-hidden rounded-full border min-[769px]:h-[78px] min-[769px]:w-[28px]" style={{ borderColor: palette.panelBorder, background: "rgba(255,255,255,0.04)" }}>
+                          <div
+                            className="absolute bottom-0 inset-x-[3px] rounded-full min-[769px]:inset-x-[4px]"
+                            style={{
+                              height: `${annualAverageScore}%`,
+                              background:
+                                model.annualAverageReturn >= 0
+                                  ? theme === "dark"
+                                    ? "linear-gradient(180deg, #fff4d6 0%, #d6c38f 55%, #9e7b3f 100%)"
+                                    : "linear-gradient(180deg, #dce8ff 0%, #78a8ff 55%, #315dc5 100%)"
+                                  : "linear-gradient(180deg, #ffcacb 0%, #e05656 100%)",
+                              boxShadow:
+                                model.annualAverageReturn >= 0
+                                  ? `0 0 16px ${palette.panelGlow}`
+                                  : "0 0 16px rgba(224,86,86,0.24)"
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </KpiCard>
+
+                  {headlineCards.map((card) => (
+                    <KpiCard
+                      key={card.title}
+                      title={card.title}
+                      value={card.value}
+                      sparkline={card.sparkline}
+                      footer={card.footer}
+                      tone={card.tone}
+                      theme={theme}
+                    />
+                  ))}
+
+                  <KpiCard title="Winrate" value={formatPercent(model.winRate)} footer={`${model.winningTrades} winning trades`} theme={theme}>
+                    <div className="grid min-h-[84px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 pt-0 min-[769px]:grid-cols-[minmax(0,1fr)_72px] min-[769px]:gap-2.5">
+                      <div className="min-w-0 space-y-1 text-[9px] leading-[1.08] min-[769px]:text-[10px]" style={{ color: palette.muted }}>
+                        <div>{model.winningTrades} winning trades</div>
+                        <div>{model.losingTrades} losing trades</div>
+                        <div className="pt-0.5 text-[8px] leading-[1.12] min-[769px]:text-[9px]" style={{ color: palette.heading }}>
+                          Strike rate {formatPercent(model.winRate)}
+                        </div>
+                      </div>
+                      <div className="h-[52px] w-[52px] justify-self-end self-start min-[769px]:-translate-y-1 min-[769px]:h-[70px] min-[769px]:w-[70px]">
+                        <DonutChart
+                          segments={tradeOutcomeSegments}
+                          centerLabel="Win"
+                          centerValue={formatPercent(model.winRate)}
+                          theme={theme}
+                        />
+                      </div>
+                    </div>
+                  </KpiCard>
+
+                  <KpiCard title="Trades" value={String(model.trades)} footer={model.tradeBreakdownText} theme={theme}>
+                    <div className="grid min-h-[88px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 pt-0 min-[769px]:grid-cols-[minmax(0,1fr)_72px] min-[769px]:gap-2.5">
+                      <div className="min-w-0 space-y-0.5 text-[8px] leading-[1.02] min-[769px]:text-[9px]" style={{ color: palette.muted }}>
+                        {model.tradesByYear.map((entry) => (
+                          <div key={entry.year} className="grid grid-cols-[auto_1fr] items-baseline gap-x-2">
+                            <span>{entry.year}</span>
+                            <span className="justify-self-end font-semibold leading-none" style={{ color: palette.heading }}>
+                              {entry.count}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="pt-1 text-[8px] leading-[1.08] min-[769px]:text-[9px]">
+                          {model.winningTrades} winners / {model.losingTrades} losers
+                        </div>
+                      </div>
+                      <div className="h-[52px] w-[52px] justify-self-end self-start min-[769px]:-translate-y-1 min-[769px]:h-[70px] min-[769px]:w-[70px]">
+                        <DonutChart segments={tradeOutcomeSegments} centerLabel="Trades" centerValue={String(model.trades)} theme={theme} />
+                      </div>
+                    </div>
+                  </KpiCard>
+
+                  <KpiCard
+                    title="Long / Short Ratio"
+                    value={`${model.longTrades} / ${model.shortTrades}`}
+                    footer={`Ratio ${model.longShortRatio.toFixed(2)}x`}
+                    theme={theme}
+                  >
+                    <div className="grid min-h-[84px] grid-cols-[minmax(0,1fr)_54px] items-start gap-2 pt-0 min-[769px]:grid-cols-[minmax(0,1fr)_72px] min-[769px]:gap-2.5">
+                      <div className="min-w-0 space-y-1 text-[9px] leading-[1.08] min-[769px]:text-[10px]">
+                        <div style={{ color: palette.text }}>
+                          Long <span style={{ color: palette.accent }}>{model.longTrades}</span>
+                        </div>
+                        <div style={{ color: palette.text }}>
+                          Short <span style={{ color: palette.accentSoft }}>{model.shortTrades}</span>
+                        </div>
+                        <div className="pt-0.5 text-[8px] leading-[1.12] min-[769px]:text-[9px]" style={{ color: palette.muted }}>
+                          Ratio {model.longShortRatio.toFixed(2)}x
+                        </div>
+                      </div>
+                      <div className="h-[52px] w-[52px] justify-self-end self-start min-[769px]:-translate-y-1 min-[769px]:h-[70px] min-[769px]:w-[70px]">
+                        <DonutChart
+                          segments={directionSegments}
+                          centerLabel="L / S"
+                          centerValue={`${model.longTrades}/${model.shortTrades}`}
+                          theme={theme}
+                        />
+                      </div>
+                    </div>
+                  </KpiCard>
+                </div>
+              ) : null}
+            </section>
+
+            <section
+              className="relative overflow-hidden rounded-[24px] border p-[18px] backdrop-blur-[18px]"
+              style={{
+                background: HOME_GLASS_BACKGROUND,
+                borderColor: "rgba(236,219,166,0.16)",
+                boxShadow: HOME_GLASS_SHADOW
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowRiskMetrics((value) => !value)}
+                className="flex w-full items-center justify-between gap-3 text-left"
+              >
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
                     Trust Layer
@@ -438,25 +499,35 @@ export default function TrackRecordPage({ initialModel }: Props) {
                   <div className="mt-1 text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
                     Risk & Efficiency Metrics
                   </div>
-                  <p className="mt-1 text-[10px]" style={{ color: palette.muted }}>
+                </div>
+                {showRiskMetrics ? (
+                  <ChevronUp className="h-4 w-4 shrink-0" style={{ color: palette.heading }} />
+                ) : (
+                  <ChevronDown className="h-4 w-4 shrink-0" style={{ color: palette.heading }} />
+                )}
+              </button>
+
+              {showRiskMetrics ? (
+                <>
+                  <p className="mt-3 text-[10px]" style={{ color: palette.muted }}>
                     Historical dataset through {model.historicalEndDate ? new Date(model.historicalEndDate).toLocaleDateString("en-GB") : "--"}
                   </p>
-                </div>
-              </div>
 
-              <div className="relative z-[1] grid min-h-0 flex-1 grid-cols-2 gap-2.5 xl:auto-rows-fr">
-                {riskCards.map((card) => (
-                  <KpiCard
-                    key={card.title}
-                    title={card.title}
-                    value={card.value}
-                    score={card.score}
-                    rating={card.rating}
-                    tone="neutral"
-                    theme={theme}
-                  />
-                ))}
-              </div>
+                  <div className="mt-4 grid min-h-0 grid-cols-2 gap-2.5 xl:auto-rows-fr">
+                    {riskCards.map((card) => (
+                      <KpiCard
+                        key={card.title}
+                        title={card.title}
+                        value={card.value}
+                        score={card.score}
+                        rating={card.rating}
+                        tone="neutral"
+                        theme={theme}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </section>
           </aside>
         </div>

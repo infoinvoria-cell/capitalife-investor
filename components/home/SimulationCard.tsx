@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { AnimatedSvgPath } from "@/components/home/AnimatedSvgPath";
 import { Card } from "@/components/ui/Card";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 
@@ -82,37 +83,58 @@ export function SimulationCard() {
             <span className="block whitespace-nowrap">{"Kapitalentwicklungen."}</span>
           </p>
 
-          <svg viewBox="0 0 150 56" className="h-[56px] w-full overflow-visible">
+          <svg viewBox="0 0 150 56" className="h-[56px] w-full overflow-visible" shapeRendering="geometricPrecision">
             <path
               d={buildSmoothPath(optimistic, 122, 56, 6, min, max)}
-              pathLength={100}
               fill="none"
               stroke="#66C26F"
-              strokeWidth="1.5"
+              strokeOpacity="0.18"
+              strokeWidth="2.8"
               strokeLinecap="round"
-              className="draw-curve monte-fade"
-              style={{ animationDelay: "0.2s" }}
+            />
+            <path
+              d={buildSmoothPath(optimistic, 122, 56, 6, min, max)}
+              fill="none"
+              stroke="#66C26F"
+              strokeOpacity="0.84"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+            />
+            <AnimatedSvgPath d={buildSmoothPath(optimistic, 122, 56, 6, min, max)} stroke="#66C26F" strokeWidth={1.9} opacity={1} delayMs={200} />
+            <path
+              d={buildSmoothPath(median, 122, 56, 6, min, max)}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeOpacity="0.18"
+              strokeWidth="2.8"
+              strokeLinecap="round"
             />
             <path
               d={buildSmoothPath(median, 122, 56, 6, min, max)}
-              pathLength={100}
               fill="none"
               stroke="#FFFFFF"
-              strokeWidth="1.5"
+              strokeOpacity="0.84"
+              strokeWidth="1.7"
               strokeLinecap="round"
-              className="draw-curve monte-fade"
-              style={{ animationDelay: "0.45s" }}
+            />
+            <AnimatedSvgPath d={buildSmoothPath(median, 122, 56, 6, min, max)} stroke="#FFFFFF" strokeWidth={1.9} opacity={1} delayMs={450} />
+            <path
+              d={buildSmoothPath(pessimistic, 122, 56, 6, min, max)}
+              fill="none"
+              stroke="#FF7A7A"
+              strokeOpacity="0.18"
+              strokeWidth="2.8"
+              strokeLinecap="round"
             />
             <path
               d={buildSmoothPath(pessimistic, 122, 56, 6, min, max)}
-              pathLength={100}
               fill="none"
               stroke="#FF7A7A"
-              strokeWidth="1.5"
+              strokeOpacity="0.84"
+              strokeWidth="1.7"
               strokeLinecap="round"
-              className="draw-curve monte-fade"
-              style={{ animationDelay: "0.7s" }}
             />
+            <AnimatedSvgPath d={buildSmoothPath(pessimistic, 122, 56, 6, min, max)} stroke="#FF7A7A" strokeWidth={1.9} opacity={1} delayMs={700} />
 
             <text x={Math.min(optimisticEnd.x + 8, 126)} y={optimisticEnd.y - 1} fill="#66C26F" fontSize="6" fontWeight="600" textAnchor="start">
               +15000 | +150%
