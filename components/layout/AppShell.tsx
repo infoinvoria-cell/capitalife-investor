@@ -27,11 +27,10 @@ export function AppShell({
           <main
             className={`main-content mobile-scroll overflow-y-auto px-4 pt-[max(0.7rem,env(safe-area-inset-top))] ${contentClassName}`.trim()}
           >
-            <PageTransition className="space-y-2.5 pb-1">
-              {children}
-              {riskNote ? <div className="px-0 pb-1.5">{riskNote}</div> : null}
-            </PageTransition>
+            <PageTransition className="space-y-2.5 pb-1">{children}</PageTransition>
           </main>
+
+          {riskNote ? <div className="risk-note px-4">{riskNote}</div> : null}
 
           <div className="bottom-nav px-4 pt-0.5">
             <BottomNav />

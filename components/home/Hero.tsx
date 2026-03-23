@@ -8,9 +8,9 @@ import { Pill } from "@/components/ui/Pill";
 
 export function Hero() {
   return (
-    <Card className="overflow-hidden p-3">
-      <div className="space-y-[8px]">
-        <div className="flex items-start justify-between gap-3">
+    <Card className="overflow-hidden p-2.5">
+      <div className="space-y-[6px]">
+        <div className="flex items-start justify-between gap-2.5">
           <Pill className="gap-1.5 px-2.5 py-1.5 text-[10px]">
             <Image
               src="/assets/brand/CAPITALIFE_ICON.png"
@@ -26,12 +26,12 @@ export function Hero() {
           </Link>
         </div>
 
-        <div className="space-y-[8px]">
+        <div className="space-y-[6px]">
           <h1 className="whitespace-nowrap text-[18px] font-semibold leading-none tracking-[-0.02em] text-white">
             {"Willkommen bei "}
             <span className="italic tracking-[0.025em] text-[#ECDBA6]">Capitalife</span>
           </h1>
-          <p className="text-[10px] leading-[1.35] text-[rgba(255,255,255,0.64)]">
+          <p className="text-[10px] leading-[1.25] text-[rgba(255,255,255,0.64)]">
             <span className="block whitespace-nowrap">
               Systematisches Multi-Strategie Investment.
             </span>
