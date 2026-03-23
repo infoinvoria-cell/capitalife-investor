@@ -170,16 +170,19 @@ export default function PerformanceTable({
         boxShadow: HOME_GLASS_SHADOW,
       }}
     >
-      <div className="relative z-[1] mb-6 flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
-        <div className="space-y-1.5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
-            Data Verified
+      <div className="relative z-[1] mb-6 flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+              Data Verified
+            </div>
+            <div className="text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
+              Performance Table
+            </div>
           </div>
-          <div className="text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
-            Performance Table
-          </div>
+          <img src="/assets/brand/CAPITALIFE_ICON.png" alt="Capitalife" className="h-7 w-7 shrink-0 object-contain opacity-95" />
         </div>
-        <div className="flex w-full flex-wrap items-center justify-between gap-2 min-[769px]:w-auto min-[769px]:justify-end">
+        <div className="flex w-full flex-wrap items-center justify-between gap-2">
           {onMultiplierChange ? (
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: palette.muted }}>
@@ -206,42 +209,44 @@ export default function PerformanceTable({
               })}
             </div>
           ) : <div />}
-          {isMobileViewport ? (
-            <div className="flex items-center gap-2">
-              {expanded ? (
+          <div className="flex items-center gap-2">
+            {isMobileViewport ? (
+              <div className="flex items-center gap-2">
+                {expanded ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsRotated((current) => !current)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border transition"
+                    style={{
+                      borderColor: isRotated ? "rgba(236,219,166,0.2)" : palette.panelBorder,
+                      background: isRotated ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
+                      color: isRotated ? palette.heading : palette.muted,
+                      boxShadow: isRotated ? `0 0 12px ${palette.panelGlow}` : "none",
+                    }}
+                    aria-label={isRotated ? "Reset table rotation" : "Rotate table 90 degrees"}
+                    title={isRotated ? "Reset table rotation" : "Rotate table 90 degrees"}
+                  >
+                    <RotateCw size={14} strokeWidth={1.8} />
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  onClick={() => setIsRotated((current) => !current)}
+                  onClick={() => setIsExpanded((current) => !current)}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full border transition"
                   style={{
-                    borderColor: isRotated ? "rgba(236,219,166,0.2)" : palette.panelBorder,
-                    background: isRotated ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
-                    color: isRotated ? palette.heading : palette.muted,
-                    boxShadow: isRotated ? `0 0 12px ${palette.panelGlow}` : "none",
+                    borderColor: expanded ? "rgba(236,219,166,0.2)" : palette.panelBorder,
+                    background: expanded ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
+                    color: expanded ? palette.heading : palette.muted,
+                    boxShadow: expanded ? `0 0 12px ${palette.panelGlow}` : "none",
                   }}
-                  aria-label={isRotated ? "Reset table rotation" : "Rotate table 90 degrees"}
-                  title={isRotated ? "Reset table rotation" : "Rotate table 90 degrees"}
+                  aria-label={expanded ? "Close table fullscreen" : "Open table fullscreen"}
+                  title={expanded ? "Close table fullscreen" : "Open table fullscreen"}
                 >
-                  <RotateCw size={14} strokeWidth={1.8} />
+                  {expanded ? <Minimize2 size={14} strokeWidth={1.8} /> : <Maximize2 size={14} strokeWidth={1.8} />}
                 </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => setIsExpanded((current) => !current)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border transition"
-                style={{
-                  borderColor: expanded ? "rgba(236,219,166,0.2)" : palette.panelBorder,
-                  background: expanded ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
-                  color: expanded ? palette.heading : palette.muted,
-                  boxShadow: expanded ? `0 0 12px ${palette.panelGlow}` : "none",
-                }}
-                aria-label={expanded ? "Close table fullscreen" : "Open table fullscreen"}
-                title={expanded ? "Close table fullscreen" : "Open table fullscreen"}
-              >
-                {expanded ? <Minimize2 size={14} strokeWidth={1.8} /> : <Maximize2 size={14} strokeWidth={1.8} />}
-              </button>
-            </div>
-          ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
 

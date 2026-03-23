@@ -272,20 +272,6 @@ export default function TrackRecordPage({ initialModel }: Props) {
       <div className="performance-page mx-auto flex w-full min-w-0 max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
         <div className="performance-content flex min-w-0 flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
           <section className="flex min-w-0 flex-col gap-6">
-            <PerformanceChart
-              chartData={chartDataWithComparisons}
-              activeMultipliers={activeMultipliers}
-              onMultiplierChange={setActiveMultipliers}
-              chartMode={chartMode}
-              onChartModeChange={setChartMode}
-              comparisonOptions={comparisonOptions}
-              activeComparisons={activeComparisons}
-              onComparisonChange={setActiveComparisons}
-              theme={theme}
-              onRefreshData={handleRefreshComparisons}
-              isRefreshing={isRefreshingComparisons}
-            />
-
             <div className="flex justify-center px-2">
               <div className="flex items-center gap-2">
                 <div
@@ -323,6 +309,20 @@ export default function TrackRecordPage({ initialModel }: Props) {
                 { src: "/assets/logos/myfxbook.png", alt: "Myfxbook" },
                 { src: "/assets/logos/roboforex.png", alt: "RoboForex" },
               ]}
+            />
+
+            <PerformanceChart
+              chartData={chartDataWithComparisons}
+              activeMultipliers={activeMultipliers}
+              onMultiplierChange={setActiveMultipliers}
+              chartMode={chartMode}
+              onChartModeChange={setChartMode}
+              comparisonOptions={comparisonOptions}
+              activeComparisons={activeComparisons}
+              onComparisonChange={setActiveComparisons}
+              theme={theme}
+              onRefreshData={handleRefreshComparisons}
+              isRefreshing={isRefreshingComparisons}
             />
           </section>
 

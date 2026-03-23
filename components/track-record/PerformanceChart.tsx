@@ -85,6 +85,11 @@ type ActiveLine = {
   dashed?: boolean;
 };
 
+type LabelPlacement = {
+  offset: number;
+  width: number;
+};
+
 type LabelIcon =
   | { type: "image"; src: string; alt: string }
   | { type: "badge"; text: string; background: string; color: string };
@@ -115,6 +120,11 @@ function clampIndex(value: number, max: number): number {
 
 function clampValue(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
+}
+
+function formatEndLabelPercent(value: number): string {
+  const rounded = Math.round(value);
+  return `${rounded >= 0 ? "+" : ""}${rounded}%`;
 }
 
 function findClosestIndex(chartData: ChartPoint[], targetDate: string): number {
@@ -271,6 +281,88 @@ export default function PerformanceChart({
     };
   }, [activeLines, visibleChartData]);
 
+  const getLabelIcon = (line: ActiveLine): LabelIcon | null => {
+    if (line.dataKey === "compareSp500") {
+      return { type: "image", src: "/assets/brand/SP500.png", alt: "S&P 500" };
+    }
+
+    if (line.dataKey === "compareDax40") {
+      return { type: "badge", text: "DAX", background: "#9d5cff", color: "#ffffff" };
+    }
+
+    return { type: "image", src: "/assets/brand/CAPITALIFE_ICON.png", alt: "Capitalife" };
+  };
+
+  const endLabelPlacements = useMemo(() => {
+    const lastPoint = visibleChartData.at(-1);
+    if (!lastPoint) {
+      return new Map<string, LabelPlacement>();
+    }
+
+    const placements = activeLines
+      .map((line) => {
+        const value = Number(lastPoint[line.dataKey]);
+        if (!Number.isFinite(value)) return null;
+
+        const label = formatEndLabelPercent(value);
+        const icon = getLabelIcon(line);
+        const iconWidth = icon ? 18 : 0;
+
+        return {
+          id: line.id,
+          value,
+          width: Math.max(42, label.length * 4.8 + 14 + iconWidth),
+        };
+      })
+      .filter((entry): entry is { id: string; value: number; width: number } => entry != null)
+      .sort((left, right) => right.value - left.value);
+
+    if (!placements.length) {
+      return new Map<string, LabelPlacement>();
+    }
+
+    const chartRange = Math.max(chartDomain.max - chartDomain.min, 1);
+    const virtualHeight = isMobileViewport ? 208 : 284;
+    const minGap = isMobileViewport ? 24 : 26;
+    const topPadding = 14;
+    const bottomPadding = 22;
+    const positioned = placements.map((entry) => {
+      const normalized = (chartDomain.max - entry.value) / chartRange;
+      const target = topPadding + normalized * (virtualHeight - topPadding - bottomPadding);
+      return { ...entry, target, position: target };
+    });
+
+    for (let index = 1; index < positioned.length; index += 1) {
+      const previous = positioned[index - 1];
+      const current = positioned[index];
+      if (current.position - previous.position < minGap) {
+        current.position = previous.position + minGap;
+      }
+    }
+
+    const maxPosition = virtualHeight - bottomPadding;
+    const last = positioned.at(-1);
+    if (last && last.position > maxPosition) {
+      const overflow = last.position - maxPosition;
+      for (let index = positioned.length - 1; index >= 0; index -= 1) {
+        positioned[index].position -= overflow;
+        if (index > 0 && positioned[index].position - positioned[index - 1].position < minGap) {
+          positioned[index - 1].position = positioned[index].position - minGap;
+        }
+      }
+    }
+
+    return new Map(
+      positioned.map((entry) => [
+        entry.id,
+        {
+          offset: entry.position - entry.target,
+          width: entry.width,
+        },
+      ]),
+    );
+  }, [activeLines, chartDomain.max, chartDomain.min, isMobileViewport, visibleChartData]);
+
   const toggleMultiplier = (multiplier: number) => {
     const isActive = sortedActiveMultipliers.includes(multiplier);
     if (isActive && sortedActiveMultipliers.length === 1) {
@@ -293,7 +385,7 @@ export default function PerformanceChart({
     onComparisonChange(next);
   };
 
-  const createLastPointRenderer = (line: ActiveLine, labelOffsetIndex: number) => {
+  const createLastPointRenderer = (line: ActiveLine) => {
     function LastPointRenderer(props: any): JSX.Element {
       if (props.index !== visibleChartData.length - 1) return <g />;
 
@@ -301,22 +393,22 @@ export default function PerformanceChart({
       const cy = Number(props.cy);
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) return <g />;
 
-      const label = formatSignedPercent(Number(props.value ?? 0) / 100);
+      const label = formatEndLabelPercent(Number(props.value ?? 0));
       const icon = getLabelIcon(line);
-      const iconWidth = icon ? 18 : 0;
-      const labelWidth = Math.max(62, label.length * 6 + 20 + iconWidth);
-      const verticalOffset = (labelOffsetIndex - (activeLines.length - 1) / 2) * 15;
+      const placement = endLabelPlacements.get(line.id);
+      const labelWidth = placement?.width ?? Math.max(42, label.length * 4.8 + 30);
+      const verticalOffset = placement?.offset ?? 0;
       const viewBoxX = Number(props.viewBox?.x ?? 0);
       const viewBoxY = Number(props.viewBox?.y ?? 0);
       const viewBoxWidth = Number(props.viewBox?.width ?? 0);
       const viewBoxHeight = Number(props.viewBox?.height ?? 0);
-      const rawLabelX = cx + 6 + labelWidth > viewBoxX + viewBoxWidth - 14 ? cx - labelWidth - 14 : cx + 6;
+      const rawLabelX = cx + 4;
       const labelX = viewBoxWidth > 0
-        ? clampValue(rawLabelX, viewBoxX + 4, viewBoxX + viewBoxWidth - labelWidth - 4)
+        ? clampValue(rawLabelX, viewBoxX + 4, viewBoxX + viewBoxWidth - labelWidth - 6)
         : rawLabelX;
-      const rawLabelY = cy - 11 + verticalOffset;
+      const rawLabelY = cy - 10 + verticalOffset;
       const labelY = viewBoxHeight > 0
-        ? clampValue(rawLabelY, viewBoxY + 4, viewBoxY + viewBoxHeight - 24)
+        ? clampValue(rawLabelY, viewBoxY + 4, viewBoxY + viewBoxHeight - 20)
         : rawLabelY;
 
       return (
@@ -325,8 +417,8 @@ export default function PerformanceChart({
           <g transform={`translate(${labelX}, ${labelY})`}>
             <rect
               width={labelWidth}
-              height={20}
-              rx={6}
+              height={18}
+              rx={5}
               fill="rgba(8,9,11,0.94)"
               stroke={line.stroke}
               strokeOpacity={0.58}
@@ -334,17 +426,17 @@ export default function PerformanceChart({
             />
             {icon ? (
               icon.type === "image" ? (
-                <image href={icon.src} x={7} y={4.2} width={12} height={12} preserveAspectRatio="xMidYMid meet" />
+                <image href={icon.src} x={5.5} y={4} width={10} height={10} preserveAspectRatio="xMidYMid meet" />
               ) : (
-                <g transform="translate(7, 4)">
-                  <rect width={12} height={12} rx={6} fill={icon.background} />
-                  <text x={6} y={8.4} textAnchor="middle" fill={icon.color} fontSize={5.3} fontWeight={800}>
+                <g transform="translate(5.5, 4)">
+                  <rect width={10} height={10} rx={5} fill={icon.background} />
+                  <text x={5} y={7.2} textAnchor="middle" fill={icon.color} fontSize={4.7} fontWeight={800}>
                     {icon.text}
                   </text>
                 </g>
               )
             ) : null}
-            <text x={icon ? 24 : labelWidth / 2} y={13} textAnchor={icon ? "start" : "middle"} fill={line.stroke} fontSize={9.5} fontWeight={700}>
+            <text x={icon ? 18.5 : labelWidth / 2} y={12} textAnchor={icon ? "start" : "middle"} fill={line.stroke} fontSize={8.2} fontWeight={700}>
               {label}
             </text>
           </g>
@@ -353,18 +445,6 @@ export default function PerformanceChart({
     }
 
     return LastPointRenderer;
-  };
-
-  const getLabelIcon = (line: ActiveLine): LabelIcon | null => {
-    if (line.dataKey === "compareSp500") {
-      return { type: "image", src: "/assets/brand/SP500.png", alt: "S&P 500" };
-    }
-
-    if (line.dataKey === "compareDax40") {
-      return { type: "badge", text: "DAX", background: "#9d5cff", color: "#ffffff" };
-    }
-
-    return { type: "image", src: "/assets/brand/CAPITALIFE_ICON.png", alt: "Capitalife" };
   };
 
   const chartLineType = chartMode === "monthly" || chartMode === "quarterly" || chartMode === "yearly" ? "linear" : "monotone";
@@ -448,15 +528,16 @@ export default function PerformanceChart({
                     minWidth: isActive ? (isMobileViewport ? option.mobileWidth : option.desktopWidth) : 28,
                   }}
                 >
-                  <span>{option.short}</span>
-                  <span
-                    className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                      isActive ? "ml-1 opacity-100" : "ml-0 max-w-0 opacity-0"
-                    }`}
-                    style={{ maxWidth: isActive ? (isMobileViewport ? option.mobileWidth - 22 : option.desktopWidth - 24) : 0 }}
-                  >
-                    {option.label}
-                  </span>
+                  {isActive ? (
+                    <span
+                      className="overflow-hidden whitespace-nowrap transition-all duration-300 opacity-100"
+                      style={{ maxWidth: isMobileViewport ? option.mobileWidth - 14 : option.desktopWidth - 16 }}
+                    >
+                      {option.label}
+                    </span>
+                  ) : (
+                    <span>{option.short}</span>
+                  )}
                 </button>
               );
             })}
@@ -604,15 +685,18 @@ export default function PerformanceChart({
             })}
           </div>
         ) : null}
-        <div className="chart-container relative min-h-0 flex-1 overflow-hidden">
+        <div
+          className="chart-container relative -mx-2 min-h-0 flex-1 overflow-hidden min-[769px]:-mx-1"
+          style={{ width: isMobileViewport ? "calc(100% + 16px)" : "calc(100% + 8px)" }}
+        >
           {mounted ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={visibleChartData}
                 margin={{
-                  top: isMobileViewport ? 8 : 10,
-                  right: isMobileViewport ? 84 : (activeLines.length > 3 ? 132 : 94),
-                  left: isMobileViewport ? 0 : 0,
+                  top: isMobileViewport ? 12 : 14,
+                  right: isMobileViewport ? 58 : (activeLines.length > 3 ? 94 : 78),
+                  left: isMobileViewport ? -4 : -2,
                   bottom: isMobileViewport ? 22 : 24,
                 }}
               >
@@ -627,8 +711,8 @@ export default function PerformanceChart({
                 />
                 <YAxis
                   domain={[chartDomain.min, chartDomain.max]}
-                  width={isMobileViewport ? 46 : 58}
-                  tickMargin={isMobileViewport ? 6 : 8}
+                  width={isMobileViewport ? 42 : 52}
+                  tickMargin={isMobileViewport ? 5 : 7}
                   stroke={palette.grid}
                   tick={{ fill: palette.muted, fontSize: isMobileViewport ? 9 : 10 }}
                   tickFormatter={(value: number) => `${Math.round(value)}%`}
@@ -651,7 +735,7 @@ export default function PerformanceChart({
                   labelFormatter={tooltipLabelFormatter}
                   formatter={(value, name) => [formatSignedPercent(Number(value ?? 0) / 100), String(name ?? "")]}
                 />
-                {activeLines.map((line, activeIndex) => (
+                {activeLines.map((line) => (
                   <Line
                     key={line.id}
                     type={chartLineType}
@@ -663,7 +747,7 @@ export default function PerformanceChart({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeDasharray={line.dashed ? "5 6" : undefined}
-                    dot={createLastPointRenderer(line, activeIndex)}
+                    dot={createLastPointRenderer(line)}
                     activeDot={{ r: 3.25, fill: line.stroke, stroke: "#0b0f14", strokeWidth: 1.5 }}
                     isAnimationActive={false}
                     connectNulls

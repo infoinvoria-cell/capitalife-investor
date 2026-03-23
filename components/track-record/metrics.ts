@@ -345,7 +345,7 @@ function buildPeriodStartPoint(chartData: ChartPoint[], mode: Extract<ChartViewM
   const firstDate = new Date(firstPoint.fullDate);
 
   return {
-    date: mode === "yearly" ? `Start ${String(firstDate.getUTCFullYear()).slice(-2)}` : "Start",
+    date: formatChartLabel(firstDate, mode),
     fullDate: firstPoint.fullDate,
     isTradeDay: false,
     curve1x: 0,
