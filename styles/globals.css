@@ -169,6 +169,25 @@
     overflow-y: auto;
   }
 
+  .track-record-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .track-record-content .page-transition {
+    height: 100%;
+  }
+
+  .ivq-terminal-page {
+    min-height: 100%;
+    padding: 18px 14px 0;
+    background: transparent;
+  }
+
+  .ivq-track-record-page {
+    padding-top: 12px;
+  }
+
   .marquee-mask {
     mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
@@ -314,6 +333,21 @@
 
   .risk-note > * {
     width: min(420px, calc(100vw - 32px));
+  }
+
+  .ivq-terminal-page {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ivq-terminal-page {
+    padding: 16px 14px 0;
+  }
+
+  .ivq-track-record-page {
+    padding-top: 10px;
   }
 }
 

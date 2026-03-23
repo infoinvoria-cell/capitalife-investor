@@ -10,13 +10,17 @@ type AppShellProps = {
   riskNote?: ReactNode;
   rootClassName?: string;
   contentClassName?: string;
+  disableDefaultContentPadding?: boolean;
+  transitionClassName?: string;
 };
 
 export function AppShell({
   children,
   riskNote,
   rootClassName = "",
-  contentClassName = ""
+  contentClassName = "",
+  disableDefaultContentPadding = false,
+  transitionClassName = "space-y-2.5 pb-1"
 }: AppShellProps) {
   return (
     <div className={`app-root ${rootClassName}`.trim()}>
@@ -25,9 +29,11 @@ export function AppShell({
         <ShellViewportController />
         <div className="relative z-10 h-full">
           <main
-            className={`main-content mobile-scroll overflow-y-auto px-4 pt-[max(0.7rem,env(safe-area-inset-top))] ${contentClassName}`.trim()}
+            className={`main-content mobile-scroll overflow-y-auto ${
+              disableDefaultContentPadding ? "" : "px-4 pt-[max(0.7rem,env(safe-area-inset-top))]"
+            } ${contentClassName}`.trim()}
           >
-            <PageTransition className="space-y-2.5 pb-1">{children}</PageTransition>
+            <PageTransition className={transitionClassName}>{children}</PageTransition>
           </main>
 
           {riskNote ? <div className="risk-note px-4">{riskNote}</div> : null}
