@@ -11,38 +11,40 @@ const infrastructure = ["CopyFX Engine", "Execution Layer", "Risk Management"];
 
 export default function SicherheitPage() {
   return (
-    <AppShell riskNote={<RiskDisclosure />}>
+    <AppShell riskNote={<RiskDisclosure />} transitionClassName="page-stack pb-1">
       <TopBar />
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle eyebrow="Sicherheit" title="Sicherheit & Infrastruktur" />
       </Card>
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle eyebrow="Broker" title="RoboForex" subtitle="Regulierter Broker mit segregierten Konten" />
-        <div className="mt-3 flex justify-center">
-          <Image
-            src="/assets/logos/roboforex.png"
-            alt="RoboForex"
-            width={118}
-            height={34}
-            className="h-[34px] w-auto object-contain"
-          />
+        <div className="mt-[18px]">
+          <div className="app-inner-panel flex min-h-[120px] items-center justify-center px-4 py-5">
+            <Image
+              src="/assets/logos/roboforex.png"
+              alt="RoboForex"
+              width={118}
+              height={34}
+              className="h-[34px] w-auto object-contain opacity-95"
+            />
+          </div>
         </div>
       </Card>
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle eyebrow="Liquiditaet" title="Top-Liquiditaetsanbieter" />
-        <div className="mt-2 grid grid-cols-3 gap-2">
+        <div className="mt-[18px] grid grid-cols-3 gap-2">
           {liquidityProviders.map((provider) => (
-            <Card key={provider} className="rounded-[16px] p-2 text-center">
-              <p className="text-[11px] font-semibold text-white">{provider}</p>
+            <Card key={provider} className="app-mini-card flex items-center justify-center text-center">
+              <p className="text-[11px] font-semibold tracking-[-0.02em] text-white">{provider}</p>
             </Card>
           ))}
         </div>
       </Card>
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle
           eyebrow="Verwahrung"
           title="Investorengelder"
@@ -50,12 +52,12 @@ export default function SicherheitPage() {
         />
       </Card>
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle eyebrow="Infrastruktur" title="Execution Stack" />
-        <div className="mt-2 grid grid-cols-3 gap-2">
+        <div className="mt-[18px] grid grid-cols-3 gap-2">
           {infrastructure.map((item) => (
-            <Card key={item} className="rounded-[16px] p-2 text-center">
-              <p className="text-[10px] font-semibold leading-[1.2] text-white">{item}</p>
+            <Card key={item} className="app-mini-card flex items-center justify-center text-center">
+              <p className="text-[10px] font-semibold leading-[1.2] tracking-[-0.02em] text-white">{item}</p>
             </Card>
           ))}
         </div>

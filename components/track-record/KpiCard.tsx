@@ -47,7 +47,7 @@ export default function KpiCard({
 
   return (
     <article
-      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[22px] border p-4 backdrop-blur-[20px] min-[769px]:rounded-[20px] min-[769px]:p-[18px]"
+      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border p-3 backdrop-blur-[20px] min-[769px]:rounded-[18px] min-[769px]:p-3.5"
       style={{
         background: palette.panelBackground,
         borderColor: palette.panelBorder,
@@ -70,10 +70,10 @@ export default function KpiCard({
 
       <div className="relative z-[1] mb-1.5 flex items-start justify-between gap-2">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: labelColor }}>
+          <div className="text-[8px] font-semibold uppercase tracking-[0.18em] min-[769px]:text-[9px]" style={{ color: labelColor }}>
             {title}
           </div>
-          <div className="mt-2 text-[18px] font-semibold leading-none min-[390px]:text-[20px] min-[769px]:text-[22px]" style={{ color: valueColor }}>
+          <div className="mt-2 text-[16px] font-semibold leading-none tracking-[-0.02em] min-[390px]:text-[18px] min-[769px]:text-[20px]" style={{ color: valueColor }}>
             {value}
           </div>
         </div>

@@ -265,9 +265,9 @@ export default function TrackRecordPage({ initialModel }: Props) {
         />
       </div>
 
-      <div className="relative mx-auto flex h-full w-full max-w-[1720px] flex-col gap-4 pt-2" style={{ color: palette.text }}>
-        <div className="grid h-full min-h-0 gap-4 xl:grid-cols-[minmax(0,1.66fr)_minmax(360px,0.92fr)]">
-          <section className="grid min-h-0 gap-4 xl:grid-rows-[minmax(0,1fr)_auto]">
+      <div className="relative mx-auto flex h-full w-full max-w-[1720px] flex-col gap-[18px] pt-2" style={{ color: palette.text }}>
+        <div className="grid h-full min-h-0 gap-[18px] xl:grid-cols-[minmax(0,1.66fr)_minmax(360px,0.92fr)]">
+          <section className="grid min-h-0 gap-[18px] xl:grid-rows-[minmax(0,1fr)_auto]">
             <PerformanceChart
               chartData={chartDataWithComparisons}
               activeMultipliers={activeMultipliers}
@@ -311,7 +311,7 @@ export default function TrackRecordPage({ initialModel }: Props) {
             />
           </section>
 
-          <aside className="grid min-h-0 gap-3 xl:grid-rows-[minmax(0,0.6fr)_minmax(0,0.4fr)]">
+          <aside className="grid min-h-0 gap-[18px] xl:grid-rows-[minmax(0,0.6fr)_minmax(0,0.4fr)]">
             <div className="grid min-h-0 grid-cols-2 gap-2.5 xl:auto-rows-fr">
               <KpiCard
                 title="Annual Avg Return"
@@ -442,7 +442,7 @@ export default function TrackRecordPage({ initialModel }: Props) {
             </div>
 
             <section
-              className="relative flex min-h-0 flex-col overflow-hidden rounded-[24px] border p-3.5 backdrop-blur-[20px]"
+              className="relative flex min-h-0 flex-col overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[20px]"
               style={{
                 background: palette.panelBackground,
                 borderColor: palette.panelBorder,
@@ -463,7 +463,7 @@ export default function TrackRecordPage({ initialModel }: Props) {
                 style={{ background: theme === "dark" ? "rgba(255,243,212,0.18)" : "rgba(218,232,255,0.16)" }}
               />
 
-              <div className="relative z-[1] mb-2.5">
+              <div className="relative z-[1] mb-[18px]">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: theme === "dark" ? palette.accent : palette.heading }}>
                     Risk & Efficiency Metrics

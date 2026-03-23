@@ -32,17 +32,17 @@ export default function ZukunftPage() {
   const medianOutcome = Math.round(capital * (medianCurve[years - 1] / 10) * (multiplier / 1.5));
 
   return (
-    <AppShell riskNote={<RiskDisclosure />}>
+    <AppShell riskNote={<RiskDisclosure />} transitionClassName="page-stack pb-1">
       <TopBar />
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle eyebrow="Zukunft" title="Zukunfts-Simulation" />
       </Card>
 
-      <Card className="p-3">
-        <div className="space-y-3">
+      <Card className="app-section-card">
+        <div className="space-y-[18px]">
           <div>
-            <p className="text-[8px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.58)]">
+            <p className="bg-[linear-gradient(90deg,#F7E9BF_0%,#ECDBA6_45%,#D9B84C_100%)] bg-clip-text text-[8px] font-semibold uppercase tracking-[0.2em] text-transparent">
               Kapital
             </p>
             <input
@@ -52,26 +52,23 @@ export default function ZukunftPage() {
               step={1000}
               value={capital}
               onChange={(event) => setCapital(Number(event.target.value))}
-              className="mt-2 w-full accent-[#D9B84C]"
+              className="mt-3 w-full accent-[#D9B84C]"
             />
-            <p className="mt-1 text-[12px] font-semibold text-white">{capital.toLocaleString("de-DE")} EUR</p>
+            <p className="mt-2 text-[15px] font-semibold tracking-[-0.02em] text-white">{capital.toLocaleString("de-DE")} EUR</p>
           </div>
 
           <div>
-            <p className="text-[8px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.58)]">
+            <p className="bg-[linear-gradient(90deg,#F7E9BF_0%,#ECDBA6_45%,#D9B84C_100%)] bg-clip-text text-[8px] font-semibold uppercase tracking-[0.2em] text-transparent">
               Jahre
             </p>
-            <div className="mt-2 grid grid-cols-4 gap-2">
+            <div className="mt-3 grid grid-cols-4 gap-2">
               {[1, 2, 3, 5].map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setYears(value)}
-                  className={`rounded-full border px-2 py-1 text-[10px] font-semibold ${
-                    years === value
-                      ? "border-[#D9B84C] bg-[#D9B84C] text-black"
-                      : "border-white/10 bg-white/[0.02] text-white/70"
-                  }`}
+                  data-active={years === value}
+                  className="app-control-chip w-full px-2"
                 >
                   {value}
                 </button>
@@ -80,7 +77,7 @@ export default function ZukunftPage() {
           </div>
 
           <div>
-            <p className="text-[8px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.58)]">
+            <p className="bg-[linear-gradient(90deg,#F7E9BF_0%,#ECDBA6_45%,#D9B84C_100%)] bg-clip-text text-[8px] font-semibold uppercase tracking-[0.2em] text-transparent">
               Multiplikator
             </p>
             <input
@@ -90,36 +87,39 @@ export default function ZukunftPage() {
               step={1}
               value={multiplier}
               onChange={(event) => setMultiplier(Number(event.target.value))}
-              className="mt-2 w-full accent-[#D9B84C]"
+              className="mt-3 w-full accent-[#D9B84C]"
             />
-            <p className="mt-1 text-[12px] font-semibold text-white">x{multiplier}</p>
+            <p className="mt-2 text-[15px] font-semibold tracking-[-0.02em] text-white">x{multiplier}</p>
           </div>
         </div>
       </Card>
 
-      <Card className="p-3">
-        <div className="h-[180px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 8, right: 2, left: -22, bottom: 0 }}>
-              <XAxis dataKey="step" stroke="rgba(255,255,255,0.28)" tickLine={false} axisLine={false} fontSize={9} />
-              <YAxis hide domain={[8, 38]} />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(10,10,10,0.94)",
-                  color: "#ffffff"
-                }}
-              />
-              <Line type="monotone" dataKey="optimistic" stroke="#66C26F" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="median" stroke="#FFFFFF" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="pessimistic" stroke="#FF7A7A" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+      <Card className="app-section-card">
+        <div className="app-inner-panel px-4 py-3">
+          <div className="h-[180px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 8, right: 2, left: -22, bottom: 0 }}>
+                <XAxis dataKey="step" stroke="rgba(255,255,255,0.28)" tickLine={false} axisLine={false} fontSize={9} />
+                <YAxis hide domain={[8, 38]} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 14,
+                    border: "1px solid rgba(236,219,166,0.12)",
+                    background: "rgba(10,10,10,0.94)",
+                    color: "#ffffff",
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.45)"
+                  }}
+                />
+                <Line type="monotone" dataKey="optimistic" stroke="#66C26F" strokeWidth={2.1} strokeOpacity={0.92} dot={false} animationDuration={900} animationEasing="ease-out" />
+                <Line type="monotone" dataKey="median" stroke="#FFFFFF" strokeWidth={2.15} strokeOpacity={0.98} dot={false} animationDuration={1050} animationEasing="ease-out" />
+                <Line type="monotone" dataKey="pessimistic" stroke="#FF7A7A" strokeWidth={2.1} strokeOpacity={0.9} dot={false} animationDuration={1200} animationEasing="ease-out" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </Card>
 
-      <Card className="p-3">
+      <Card className="app-section-card">
         <SectionTitle
           eyebrow="Ergebnis"
           title="Median outcome"

@@ -147,7 +147,7 @@ export default function PerformanceTable({
 
   const renderTableCard = (expanded = false) => (
     <section
-      className={`relative overflow-hidden rounded-[24px] border p-3.5 backdrop-blur-[20px] min-[769px]:p-4 ${expanded ? "min-h-[calc(100dvh-24px)]" : ""}`}
+      className={`relative overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[20px] ${expanded ? "min-h-[calc(100dvh-24px)]" : ""}`}
       style={{
         background: palette.panelBackgroundStrong,
         borderColor: palette.panelBorder,
@@ -168,7 +168,7 @@ export default function PerformanceTable({
         style={{ background: theme === "dark" ? "rgba(255,243,212,0.20)" : "rgba(218,232,255,0.18)" }}
       />
 
-      <div className="relative z-[1] mb-2.5 flex flex-col items-start gap-2 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
+      <div className="relative z-[1] mb-[18px] flex flex-col items-start gap-2 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
         <div className="text-[15px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.heading }}>
           Performance Table
         </div>

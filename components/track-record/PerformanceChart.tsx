@@ -267,7 +267,7 @@ export default function PerformanceChart({
 
   return (
     <section
-      className="relative flex h-full min-h-0 flex-col overflow-visible rounded-[28px] border px-4 pb-5 pt-3.5 backdrop-blur-[20px] min-[769px]:px-5 min-[769px]:pb-6 min-[769px]:pt-4"
+      className="relative flex h-full min-h-0 flex-col overflow-visible rounded-[28px] border px-[22px] pb-[22px] pt-[22px] backdrop-blur-[20px]"
       style={{
         background: palette.panelBackgroundStrong,
         borderColor: palette.panelBorder,
@@ -288,7 +288,7 @@ export default function PerformanceChart({
         style={{ background: theme === "dark" ? "rgba(255,243,212,0.20)" : "rgba(218,232,255,0.18)" }}
       />
 
-      <div className="relative z-[1] mb-3 flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
+      <div className="relative z-[1] mb-[18px] flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
         <div className="text-[14px] font-semibold uppercase tracking-[0.22em] min-[769px]:text-[15px]" style={{ color: palette.heading }}>
           Performance Chart
         </div>
@@ -462,7 +462,7 @@ export default function PerformanceChart({
         </div>
       </div>
 
-      <div className="relative z-[1] min-h-[348px] flex-1 overflow-visible pb-4 min-[769px]:min-h-[436px] min-[769px]:pb-5">
+      <div className="relative z-[1] min-h-[348px] flex-1 overflow-visible pb-3 min-[769px]:min-h-[436px] min-[769px]:pb-4">
         {sortedActiveComparisons.length ? (
           <div className="mb-2 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em]">
             {sortedActiveComparisons.map((comparison) => {
