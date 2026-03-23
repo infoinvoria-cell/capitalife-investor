@@ -11,7 +11,12 @@ const figtree = Figtree({
 
 export const metadata: Metadata = {
   title: "Capital Life",
-  description: "Premium Investor App fuer Capital Life"
+  description: "Premium Investor App fuer Capital Life",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Capital Life"
+  }
 };
 
 export const viewport: Viewport = {
