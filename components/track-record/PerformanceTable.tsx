@@ -29,9 +29,9 @@ export default function PerformanceTable({
   const palette = getTrackRecordThemePalette(theme);
   const totalRowTone = totalCumulativeReturn >= 0 ? (theme === "blue" ? palette.success : palette.positive) : palette.negative;
   const isBlueTheme = theme === "blue";
-  const headerBackground = isBlueTheme ? "rgba(7,18,35,0.18)" : palette.tableHeader;
-  const rowBackground = isBlueTheme ? "rgba(0,0,0,0)" : "rgba(10,14,20,0.72)";
-  const totalBackground = isBlueTheme ? "rgba(0,0,0,0)" : "rgba(7,10,15,0.8)";
+  const headerBackground = isBlueTheme ? "rgba(255,255,255,0.02)" : palette.tableHeader;
+  const rowBackground = "rgba(255,255,255,0.015)";
+  const totalBackground = "rgba(255,255,255,0.02)";
   const displayMultiplier = Math.max(1, Number(activeMultiplier ?? 1));
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [isLandscapeViewport, setIsLandscapeViewport] = useState(false);
@@ -147,30 +147,21 @@ export default function PerformanceTable({
 
   const renderTableCard = (expanded = false) => (
     <section
-      className={`relative overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[20px] ${expanded ? "min-h-[calc(100dvh-24px)]" : ""}`}
+      className={`relative overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[18px] ${expanded ? "min-h-[calc(100dvh-24px)]" : ""}`}
       style={{
         background: palette.panelBackgroundStrong,
         borderColor: palette.panelBorder,
         boxShadow: palette.panelShadow,
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            theme === "dark"
-              ? "radial-gradient(900px 420px at 88% 92%, rgba(214,195,143,0.12), transparent 42%)"
-              : "radial-gradient(900px 420px at 88% 92%, rgba(77,135,254,0.12), transparent 42%)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-x-6 top-0 h-px"
-        style={{ background: theme === "dark" ? "rgba(255,243,212,0.20)" : "rgba(218,232,255,0.18)" }}
-      />
-
-      <div className="relative z-[1] mb-[18px] flex flex-col items-start gap-2 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
-        <div className="text-[15px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.heading }}>
-          Performance Table
+      <div className="relative z-[1] mb-6 flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
+        <div className="space-y-1.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+            Data Layer
+          </div>
+          <div className="text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
+            Performance Table
+          </div>
         </div>
         <div className="flex w-full flex-wrap items-center justify-between gap-2 min-[769px]:w-auto min-[769px]:justify-end">
           {onMultiplierChange ? (
@@ -179,18 +170,18 @@ export default function PerformanceTable({
                 const isActive = (activeMultiplier ?? 1) === multiplier;
                 return (
                   <button
-                    key={multiplier}
-                    type="button"
-                    onClick={() => onMultiplierChange(multiplier)}
-                    className="inline-flex h-7 min-w-[32px] items-center justify-center rounded-full border px-2 text-[11px] font-semibold transition"
-                    style={{
-                      borderColor: isActive ? `${palette.accent}88` : palette.panelBorder,
-                      background: isActive ? `${palette.accent}10` : "rgba(6,10,16,0.42)",
-                      color: isActive ? palette.heading : palette.muted,
-                      boxShadow: isActive ? `0 0 8px ${palette.panelGlow}` : "none",
-                    }}
-                  >
-                    {multiplier}x
+                  key={multiplier}
+                  type="button"
+                  onClick={() => onMultiplierChange(multiplier)}
+                  className="inline-flex h-8 min-w-[36px] items-center justify-center rounded-full border px-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] transition"
+                  style={{
+                    borderColor: isActive ? "rgba(236,219,166,0.2)" : palette.panelBorder,
+                    background: isActive ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
+                    color: isActive ? palette.heading : palette.muted,
+                    boxShadow: isActive ? `0 0 12px ${palette.panelGlow}` : "none",
+                  }}
+                >
+                  {multiplier}x
                   </button>
                 );
               })}
@@ -204,10 +195,10 @@ export default function PerformanceTable({
                   onClick={() => setIsRotated((current) => !current)}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full border transition"
                   style={{
-                    borderColor: isRotated ? `${palette.accent}88` : palette.panelBorder,
-                    background: isRotated ? `${palette.accent}14` : "rgba(6,10,16,0.42)",
+                    borderColor: isRotated ? "rgba(236,219,166,0.2)" : palette.panelBorder,
+                    background: isRotated ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
                     color: isRotated ? palette.heading : palette.muted,
-                    boxShadow: isRotated ? `0 0 10px ${palette.panelGlow}` : "none",
+                    boxShadow: isRotated ? `0 0 12px ${palette.panelGlow}` : "none",
                   }}
                   aria-label={isRotated ? "Reset table rotation" : "Rotate table 90 degrees"}
                   title={isRotated ? "Reset table rotation" : "Rotate table 90 degrees"}
@@ -220,10 +211,10 @@ export default function PerformanceTable({
                 onClick={() => setIsExpanded((current) => !current)}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border transition"
                 style={{
-                  borderColor: expanded ? `${palette.accent}88` : palette.panelBorder,
-                  background: expanded ? `${palette.accent}14` : "rgba(6,10,16,0.42)",
+                  borderColor: expanded ? "rgba(236,219,166,0.2)" : palette.panelBorder,
+                  background: expanded ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
                   color: expanded ? palette.heading : palette.muted,
-                  boxShadow: expanded ? `0 0 10px ${palette.panelGlow}` : "none",
+                  boxShadow: expanded ? `0 0 12px ${palette.panelGlow}` : "none",
                 }}
                 aria-label={expanded ? "Close table fullscreen" : "Open table fullscreen"}
                 title={expanded ? "Close table fullscreen" : "Open table fullscreen"}
@@ -236,13 +227,13 @@ export default function PerformanceTable({
       </div>
 
       {isMobileViewport ? (
-        <div className="relative z-[1] mb-2 text-[9px] font-medium uppercase tracking-[0.12em]" style={{ color: palette.muted }}>
+        <div className="relative z-[1] mb-3 text-[8px] font-medium uppercase tracking-[0.14em]" style={{ color: palette.muted }}>
           {expanded ? "Rotate dreht die Tabelle 90 Grad fuer die volle Handybreite." : "Fullscreen nutzt Querformat automatisch groesser."}
         </div>
       ) : null}
 
       <div className="relative z-[1] overflow-hidden pb-1">
-        <table className="w-full table-fixed border-separate border-spacing-y-1.5 text-left tabular-nums min-[769px]:text-[10px] xl:text-[11px]">
+        <table className="w-full table-fixed border-separate border-spacing-y-1 text-left tabular-nums min-[769px]:text-[10px] xl:text-[11px]">
           <colgroup>
             <col className={yearColClass} />
             {MONTH_LABELS.map((month) => (
@@ -280,7 +271,7 @@ export default function PerformanceTable({
             {rows.map((row) => (
               <tr key={row.year}>
                 <td
-                  className={yearCellClass}
+                  className={`${yearCellClass} transition-colors duration-200 hover:bg-white/[0.03]`}
                   style={{ borderColor: palette.panelBorder, background: rowBackground, color: palette.heading }}
                 >
                   {row.year}
@@ -290,7 +281,7 @@ export default function PerformanceTable({
                   return (
                     <td
                       key={`${row.year}-${month}`}
-                      className={monthValueClass}
+                      className={`${monthValueClass} transition-colors duration-200 hover:bg-white/[0.03]`}
                       style={{ borderColor: palette.panelBorder, background: rowBackground, ...toneStyle(scaleValue(value)) }}
                     >
                       {monthCellLabel(value)}
@@ -298,7 +289,7 @@ export default function PerformanceTable({
                   );
                 })}
                 <td
-                  className={totalCellClass}
+                  className={`${totalCellClass} transition-colors duration-200 hover:bg-white/[0.03]`}
                   style={{ borderColor: palette.panelBorder, background: rowBackground, ...toneStyle(scaleValue(row.total)) }}
                 >
                   {row.total == null ? "--" : formatSignedPercent(scaleValue(row.total) ?? 0)}

@@ -56,9 +56,6 @@ type Props = {
 };
 
 const CHART_MODE_OPTIONS: Array<{ value: ChartViewMode; label: string }> = [
-  { value: "regular", label: "Regular" },
-  { value: "warped", label: "Warped" },
-  { value: "smooth", label: "Smooth" },
   { value: "monthly", label: "Monthly" },
   { value: "quarterly", label: "Quarterly" },
   { value: "yearly", label: "Yearly" },
@@ -164,7 +161,7 @@ export default function PerformanceChart({
         label: `${multiplier}x`,
         endLabel: `${multiplier}x`,
         stroke: getCurveStroke(curveKey),
-        width: multiplier === 1 ? 2.6 : 2.3,
+        width: multiplier === 1 ? 1.9 : 1.55,
         glow: multiplier === 5,
       };
     });
@@ -175,7 +172,7 @@ export default function PerformanceChart({
       label: `${comparison.label} (corr ${comparison.correlation.toFixed(2)})`,
       endLabel: comparison.label,
       stroke: getComparisonStroke(comparison.key, comparison.color),
-      width: 2.05,
+      width: 1.35,
       glow: false,
       dashed: true,
     }));
@@ -214,22 +211,21 @@ export default function PerformanceChart({
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) return <g />;
 
       const label = formatSignedPercent(Number(props.value ?? 0) / 100);
-      const labelWidth = Math.max(54, label.length * 7 + 16);
-      const verticalOffset = (labelOffsetIndex - (activeLines.length - 1) / 2) * 18;
+      const labelWidth = Math.max(48, label.length * 6 + 14);
+      const verticalOffset = (labelOffsetIndex - (activeLines.length - 1) / 2) * 15;
 
       return (
         <g>
-          <circle cx={cx} cy={cy} r={3.5} fill={line.stroke} stroke="rgba(5,8,12,0.95)" strokeWidth={1.5} />
-          <g transform={`translate(${cx + 10}, ${cy - 13 + verticalOffset})`}>
+          <circle cx={cx} cy={cy} r={2.75} fill={line.stroke} stroke="rgba(6,8,11,0.95)" strokeWidth={1.15} />
+          <g transform={`translate(${cx + 8}, ${cy - 11 + verticalOffset})`}>
             <rect
               width={labelWidth}
-              height={24}
-              rx={8}
-              fill="rgba(6,10,16,0.88)"
-              stroke={palette.panelBorder}
-              filter={line.glow ? "url(#track-record-end-glow)" : undefined}
+              height={20}
+              rx={6}
+              fill="rgba(8,9,11,0.92)"
+              stroke="rgba(255,255,255,0.08)"
             />
-            <text x={labelWidth / 2} y={15} textAnchor="middle" fill={line.stroke} fontSize={11} fontWeight={700}>
+            <text x={labelWidth / 2} y={13} textAnchor="middle" fill={line.stroke} fontSize={9.5} fontWeight={700}>
               {label}
             </text>
           </g>
@@ -267,77 +263,45 @@ export default function PerformanceChart({
 
   return (
     <section
-      className="relative flex h-full min-h-0 flex-col overflow-visible rounded-[28px] border px-[22px] pb-[22px] pt-[22px] backdrop-blur-[20px]"
+      className="relative flex h-full min-h-0 flex-col overflow-visible rounded-[28px] border px-[22px] pb-[22px] pt-[22px] backdrop-blur-[18px]"
       style={{
         background: palette.panelBackgroundStrong,
         borderColor: palette.panelBorder,
         boxShadow: palette.panelShadow,
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            theme === "dark"
-              ? "radial-gradient(1200px 520px at 12% 8%, rgba(214,195,143,0.24), transparent 48%), linear-gradient(120deg, rgba(255,255,255,0.07), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.03), transparent 22%)"
-              : "radial-gradient(1200px 520px at 12% 8%, rgba(77,135,254,0.24), transparent 48%), linear-gradient(120deg, rgba(255,255,255,0.07), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.03), transparent 22%)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-x-6 top-0 h-px"
-        style={{ background: theme === "dark" ? "rgba(255,243,212,0.20)" : "rgba(218,232,255,0.18)" }}
-      />
-
-      <div className="relative z-[1] mb-[18px] flex flex-col items-start gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
-        <div className="text-[14px] font-semibold uppercase tracking-[0.22em] min-[769px]:text-[15px]" style={{ color: palette.heading }}>
-          Performance Chart
+      <div className="relative z-[1] mb-6 flex flex-col items-start gap-4">
+        <div className="space-y-2">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+            Performance
+          </div>
+          <div className="text-[14px] font-semibold tracking-[-0.02em] min-[769px]:text-[15px]" style={{ color: palette.heading }}>
+            Track Record Overview
+          </div>
         </div>
 
-        <div className="flex w-full flex-wrap items-center gap-2 min-[769px]:w-auto min-[769px]:justify-end">
+        <div className="flex w-full flex-col gap-3 min-[769px]:flex-row min-[769px]:items-center min-[769px]:justify-between">
           <div
-            className="rounded-full border px-2"
-            style={{
-              borderColor: palette.panelBorder,
-              background: "rgba(6,10,16,0.38)",
-            }}
+            className="inline-flex flex-wrap items-center gap-2 rounded-full border p-1"
+            style={{ borderColor: palette.panelBorder, background: "rgba(255,255,255,0.02)" }}
           >
-            <select
-              aria-label="Chart mode"
-              value={chartMode}
-              onChange={(event) => onChartModeChange(event.target.value as ChartViewMode)}
-              className="h-7 bg-transparent pr-4 text-[10px] font-semibold uppercase tracking-[0.12em] outline-none"
-              style={{ color: palette.heading }}
-            >
-              {CHART_MODE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} style={{ background: theme === "dark" ? "#0b0b0d" : "#071325" }}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {comparisonOptions.map((comparison) => {
-              const isActive = activeComparisons.includes(comparison.id);
-              const comparisonColor = getComparisonStroke(comparison.key, comparison.color);
+            {CHART_MODE_OPTIONS.map((option) => {
+              const isActive = chartMode === option.value;
               return (
                 <button
-                  key={comparison.id}
+                  key={option.value}
                   type="button"
-                  onClick={() => toggleComparison(comparison.id)}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border transition"
+                  onClick={() => onChartModeChange(option.value)}
+                  className="rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition"
                   style={{
-                    borderColor: isActive ? `${comparisonColor}88` : palette.panelBorder,
-                    background: isActive ? `${comparisonColor}18` : "rgba(6,10,16,0.42)",
-                    boxShadow: isActive ? `0 0 10px ${comparisonColor}20` : "none",
-                  }}
-                  title={`Toggle ${comparison.label}`}
-                  onMouseDown={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
+                    border: "1px solid transparent",
+                    borderColor: isActive ? "rgba(236,219,166,0.22)" : "transparent",
+                    background: isActive ? "rgba(236,219,166,0.08)" : "transparent",
+                    boxShadow: isActive ? "0 0 14px rgba(236,219,166,0.08)" : "none",
+                    color: isActive ? palette.heading : palette.muted,
                   }}
                 >
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: comparisonColor }} />
+                  {option.label}
                 </button>
               );
             })}
@@ -357,12 +321,12 @@ export default function PerformanceChart({
                 event.stopPropagation();
               }}
               onClick={() => setCompareMenuOpen((current) => !current)}
-              className="relative z-[31] flex h-7 cursor-pointer items-center justify-center rounded-full border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition"
+              className="relative z-[31] flex h-8 cursor-pointer items-center justify-center rounded-full border px-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition"
               style={{
-                borderColor: compareMenuOpen || activeComparisons.length > 0 ? `${palette.accent}88` : palette.panelBorder,
-                background: compareMenuOpen || activeComparisons.length > 0 ? `${palette.accent}14` : "rgba(6,10,16,0.42)",
+                borderColor: compareMenuOpen || activeComparisons.length > 0 ? "rgba(236,219,166,0.18)" : palette.panelBorder,
+                background: compareMenuOpen || activeComparisons.length > 0 ? "rgba(236,219,166,0.06)" : "rgba(255,255,255,0.02)",
                 color: activeComparisons.length > 0 ? palette.heading : palette.muted,
-                boxShadow: compareMenuOpen || activeComparisons.length > 0 ? `0 0 10px ${palette.panelGlow}` : "none",
+                boxShadow: compareMenuOpen || activeComparisons.length > 0 ? `0 0 12px ${palette.panelGlow}` : "none",
               }}
             >
               {compareButtonLabel}
@@ -430,7 +394,7 @@ export default function PerformanceChart({
               className="inline-flex h-7 items-center justify-center rounded-full border px-3 text-[10px] font-semibold uppercase tracking-[0.12em] transition"
               style={{
                 borderColor: palette.panelBorder,
-                background: "rgba(6,10,16,0.42)",
+                background: "rgba(255,255,255,0.02)",
                 color: palette.muted,
               }}
             >
@@ -447,12 +411,12 @@ export default function PerformanceChart({
                 key={curve.key}
                 type="button"
                 onClick={() => toggleMultiplier(multiplier)}
-                className="inline-flex h-7 min-w-[32px] items-center justify-center rounded-full border px-2 text-[11px] font-semibold transition"
+                className="inline-flex h-8 min-w-[36px] items-center justify-center rounded-full border px-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] transition"
                 style={{
-                  borderColor: isActive ? `${palette.accent}88` : palette.panelBorder,
-                  background: isActive ? `${palette.accent}10` : "rgba(6,10,16,0.42)",
+                  borderColor: isActive ? "rgba(236,219,166,0.2)" : palette.panelBorder,
+                  background: isActive ? "rgba(236,219,166,0.08)" : "rgba(255,255,255,0.02)",
                   color: isActive ? palette.heading : palette.muted,
-                  boxShadow: isActive ? `0 0 8px ${palette.panelGlow}` : "none",
+                  boxShadow: isActive ? `0 0 12px ${palette.panelGlow}` : "none",
                 }}
               >
                 {curve.label}
@@ -462,9 +426,9 @@ export default function PerformanceChart({
         </div>
       </div>
 
-      <div className="relative z-[1] min-h-[348px] flex-1 overflow-visible pb-3 min-[769px]:min-h-[436px] min-[769px]:pb-4">
+      <div className="relative z-[1] min-h-[348px] flex-1 overflow-visible pb-2 min-[769px]:min-h-[436px]">
         {sortedActiveComparisons.length ? (
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em]">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.14em]">
             {sortedActiveComparisons.map((comparison) => {
               const comparisonColor = getComparisonStroke(comparison.key, comparison.color);
               return (
@@ -472,9 +436,9 @@ export default function PerformanceChart({
                   key={`${comparison.id}-legend`}
                   className="inline-flex items-center gap-2 rounded-full border px-2.5 py-1"
                   style={{
-                    borderColor: `${comparisonColor}66`,
-                    background: `${comparisonColor}12`,
-                    color: comparisonColor,
+                    borderColor: "rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.02)",
+                    color: palette.muted,
                   }}
                 >
                   <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: comparisonColor }} />
@@ -484,60 +448,44 @@ export default function PerformanceChart({
             })}
           </div>
         ) : null}
-        <div className="relative h-full overflow-hidden rounded-[20px] px-0.5 pb-1 pt-1 min-[769px]:rounded-[24px] min-[769px]:px-1 min-[769px]:pb-2 min-[769px]:pt-1.5">
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                theme === "dark"
-                  ? "radial-gradient(520px 240px at 8% 10%, rgba(214,195,143,0.12), transparent 58%), radial-gradient(360px 180px at 88% 92%, rgba(214,195,143,0.08), transparent 62%)"
-                  : "radial-gradient(520px 240px at 8% 10%, rgba(77,135,254,0.12), transparent 58%), radial-gradient(360px 180px at 88% 92%, rgba(77,135,254,0.08), transparent 62%)",
-            }}
-          />
+        <div className="relative h-full">
           {mounted ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={visibleChartData}
                 margin={{
-                  top: isMobileViewport ? 10 : 14,
-                  right: isMobileViewport ? (activeLines.length > 3 ? 98 : 78) : (activeLines.length > 3 ? 132 : 92),
-                  left: isMobileViewport ? -10 : 0,
-                  bottom: isMobileViewport ? 30 : 18,
+                  top: isMobileViewport ? 8 : 10,
+                  right: isMobileViewport ? (activeLines.length > 3 ? 92 : 72) : (activeLines.length > 3 ? 120 : 84),
+                  left: isMobileViewport ? -12 : -2,
+                  bottom: isMobileViewport ? 24 : 16,
                 }}
               >
-                <defs>
-                  <filter id="track-record-end-glow" x="-40%" y="-40%" width="180%" height="180%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-                <CartesianGrid stroke={palette.grid} strokeDasharray="2 8" vertical={false} />
+                <CartesianGrid stroke={palette.grid} strokeDasharray="2 10" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  minTickGap={isMobileViewport ? 22 : 28}
-                  tickMargin={isMobileViewport ? 12 : 16}
-                  height={isMobileViewport ? 30 : 34}
+                  minTickGap={isMobileViewport ? 24 : 30}
+                  tickMargin={isMobileViewport ? 10 : 14}
+                  height={isMobileViewport ? 28 : 32}
                   stroke={palette.grid}
-                  tick={{ fill: palette.muted, fontSize: isMobileViewport ? 10 : 12 }}
+                  tick={{ fill: palette.muted, fontSize: isMobileViewport ? 9 : 10 }}
                 />
                 <YAxis
-                  width={isMobileViewport ? 52 : 68}
-                  tickMargin={isMobileViewport ? 8 : 10}
+                  width={isMobileViewport ? 46 : 58}
+                  tickMargin={isMobileViewport ? 6 : 8}
                   stroke={palette.grid}
-                  tick={{ fill: palette.muted, fontSize: isMobileViewport ? 10 : 12 }}
+                  tick={{ fill: palette.muted, fontSize: isMobileViewport ? 9 : 10 }}
                   tickFormatter={(value: number) => `${Math.round(value)}%`}
                 />
                 <Tooltip
                   contentStyle={{
-                    borderRadius: 16,
-                    border: `1px solid ${palette.panelBorder}`,
-                    background: "rgba(7,10,15,0.96)",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.45)",
+                    borderRadius: 10,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(8,9,11,0.94)",
+                    boxShadow: "0 14px 28px rgba(0,0,0,0.36)",
+                    padding: "8px 10px",
                   }}
-                  labelStyle={{ color: palette.heading, fontWeight: 600 }}
+                  itemStyle={{ color: palette.heading, fontSize: 11 }}
+                  labelStyle={{ color: palette.muted, fontWeight: 600, fontSize: 10, marginBottom: 4 }}
                   labelFormatter={tooltipLabelFormatter}
                   formatter={(value, name) => [formatSignedPercent(Number(value ?? 0) / 100), String(name ?? "")]}
                 />
@@ -549,12 +497,12 @@ export default function PerformanceChart({
                     name={line.label}
                     stroke={line.stroke}
                     strokeWidth={line.width}
-                    strokeOpacity={1}
+                    strokeOpacity={line.dashed ? 0.72 : 0.94}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeDasharray={line.dashed ? "7 5" : undefined}
+                    strokeDasharray={line.dashed ? "5 6" : undefined}
                     dot={createLastPointRenderer(line, activeIndex)}
-                    activeDot={{ r: 4, fill: line.stroke, stroke: "#0b0f14", strokeWidth: 2 }}
+                    activeDot={{ r: 3.25, fill: line.stroke, stroke: "#0b0f14", strokeWidth: 1.5 }}
                     isAnimationActive={false}
                     connectNulls
                     style={
@@ -562,8 +510,8 @@ export default function PerformanceChart({
                         ? {
                             filter:
                               theme === "dark"
-                                ? "drop-shadow(0 0 10px rgba(245,212,123,0.48))"
-                                : "drop-shadow(0 0 10px rgba(77,200,255,0.44))",
+                                ? "drop-shadow(0 0 4px rgba(236,219,166,0.22))"
+                                : "drop-shadow(0 0 4px rgba(255,255,255,0.18))",
                           }
                         : undefined
                     }
@@ -572,11 +520,11 @@ export default function PerformanceChart({
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full rounded-[20px] border" style={{ borderColor: palette.panelBorder, background: "rgba(7,10,15,0.72)" }} />
+            <div className="h-full" />
           )}
 
-          <div className="pointer-events-none absolute bottom-20 right-3 z-[2] min-[769px]:bottom-18 min-[769px]:right-5">
-            <img src={palette.watermarkLogo} alt="" className="h-5 w-auto opacity-28 min-[769px]:h-9 min-[769px]:opacity-32" />
+          <div className="pointer-events-none absolute bottom-14 right-1 z-[2] min-[769px]:bottom-12 min-[769px]:right-3">
+            <img src={palette.watermarkLogo} alt="" className="h-4 w-auto opacity-18 min-[769px]:h-7 min-[769px]:opacity-22" />
           </div>
         </div>
       </div>

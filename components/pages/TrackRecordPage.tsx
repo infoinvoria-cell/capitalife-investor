@@ -40,7 +40,7 @@ function formatPercent(value: number): string {
 export default function TrackRecordPage({ initialModel }: Props) {
   const [activeMultipliers, setActiveMultipliers] = useState<number[]>([1]);
   const [activeComparisons, setActiveComparisons] = useState<ComparisonAssetId[]>([]);
-  const [chartMode, setChartMode] = useState<ChartViewMode>("regular");
+  const [chartMode, setChartMode] = useState<ChartViewMode>("monthly");
   const [tableMultiplier, setTableMultiplier] = useState<number>(1);
   const [theme, setTheme] = useState<TrackRecordTheme>("dark");
   const [comparisonSeries, setComparisonSeries] = useState<ComparisonSeries[]>([]);
@@ -251,23 +251,10 @@ export default function TrackRecordPage({ initialModel }: Props) {
   );
 
   return (
-    <main className="ivq-terminal-page ivq-track-record-page relative">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]" aria-hidden="true">
-        <div className="absolute inset-0" style={{ background: palette.pageBackground }} />
-        <div
-          className="absolute inset-0 opacity-90"
-          style={{
-            background:
-              theme === "dark"
-                ? "linear-gradient(120deg, rgba(255,255,255,0.05), transparent 22%), radial-gradient(720px 280px at 78% 14%, rgba(214,195,143,0.10), transparent 62%)"
-                : "linear-gradient(120deg, rgba(255,255,255,0.05), transparent 22%), radial-gradient(720px 280px at 78% 14%, rgba(77,135,254,0.12), transparent 62%)"
-          }}
-        />
-      </div>
-
-      <div className="relative mx-auto flex h-full w-full max-w-[1720px] flex-col gap-[18px] pt-2" style={{ color: palette.text }}>
-        <div className="grid h-full min-h-0 gap-[18px] xl:grid-cols-[minmax(0,1.66fr)_minmax(360px,0.92fr)]">
-          <section className="grid min-h-0 gap-[18px] xl:grid-rows-[minmax(0,1fr)_auto]">
+    <main className="ivq-terminal-page ivq-track-record-page">
+      <div className="mx-auto flex h-full w-full max-w-[1720px] flex-col gap-6 pt-2" style={{ color: palette.text }}>
+        <div className="grid h-full min-h-0 gap-6 xl:grid-cols-[minmax(0,1.58fr)_minmax(320px,0.86fr)]">
+          <section className="grid min-h-0 gap-6 xl:grid-rows-[minmax(0,1fr)_auto]">
             <PerformanceChart
               chartData={chartDataWithComparisons}
               activeMultipliers={activeMultipliers}
@@ -284,18 +271,12 @@ export default function TrackRecordPage({ initialModel }: Props) {
 
             <div className="flex justify-center px-2">
               <div
-                className="inline-flex min-[769px]:text-[10px] items-center rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.22em] shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
+                className="app-badge min-[769px]:text-[9px]"
                 style={{
-                  borderColor: theme === "dark" ? "rgba(214,195,143,0.32)" : "rgba(77,135,254,0.28)",
-                  background:
-                    theme === "dark"
-                      ? "linear-gradient(180deg, rgba(16,14,10,0.90), rgba(9,9,10,0.76))"
-                      : "linear-gradient(180deg, rgba(13,24,44,0.90), rgba(8,18,36,0.78))",
+                  borderColor: theme === "dark" ? "rgba(236,219,166,0.18)" : "rgba(255,255,255,0.14)",
+                  background: "rgba(255,255,255,0.03)",
                   color: theme === "dark" ? "#f5e7bd" : "#dce8ff",
-                  boxShadow:
-                    theme === "dark"
-                      ? "0 0 18px rgba(214,195,143,0.10)"
-                      : "0 0 18px rgba(77,135,254,0.12)"
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.18)"
                 }}
               >
                 Third Party Verified Track Record
@@ -311,7 +292,7 @@ export default function TrackRecordPage({ initialModel }: Props) {
             />
           </section>
 
-          <aside className="grid min-h-0 gap-[18px] xl:grid-rows-[minmax(0,0.6fr)_minmax(0,0.4fr)]">
+          <aside className="grid min-h-0 gap-6 xl:grid-rows-[minmax(0,0.58fr)_minmax(0,0.42fr)]">
             <div className="grid min-h-0 grid-cols-2 gap-2.5 xl:auto-rows-fr">
               <KpiCard
                 title="Annual Avg Return"
@@ -442,30 +423,19 @@ export default function TrackRecordPage({ initialModel }: Props) {
             </div>
 
             <section
-              className="relative flex min-h-0 flex-col overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[20px]"
+              className="relative flex min-h-0 flex-col overflow-hidden rounded-[28px] border p-[22px] backdrop-blur-[18px]"
               style={{
                 background: palette.panelBackground,
                 borderColor: palette.panelBorder,
                 boxShadow: palette.panelShadow
               }}
             >
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    theme === "dark"
-                      ? "linear-gradient(135deg, rgba(255,255,255,0.05), transparent 28%), radial-gradient(340px 180px at 92% 0%, rgba(214,195,143,0.14), transparent 64%)"
-                      : "linear-gradient(135deg, rgba(255,255,255,0.05), transparent 28%), radial-gradient(340px 180px at 92% 0%, rgba(77,135,254,0.16), transparent 64%)"
-                }}
-              />
-              <div
-                className="pointer-events-none absolute inset-x-5 top-0 h-px"
-                style={{ background: theme === "dark" ? "rgba(255,243,212,0.18)" : "rgba(218,232,255,0.16)" }}
-              />
-
-              <div className="relative z-[1] mb-[18px]">
+              <div className="relative z-[1] mb-6">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: theme === "dark" ? palette.accent : palette.heading }}>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+                    Trust Layer
+                  </div>
+                  <div className="mt-1 text-[14px] font-semibold tracking-[-0.02em]" style={{ color: palette.heading }}>
                     Risk & Efficiency Metrics
                   </div>
                   <p className="mt-1 text-[10px]" style={{ color: palette.muted }}>

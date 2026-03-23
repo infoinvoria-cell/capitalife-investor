@@ -47,33 +47,19 @@ export default function KpiCard({
 
   return (
     <article
-      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border p-3 backdrop-blur-[20px] min-[769px]:rounded-[18px] min-[769px]:p-3.5"
+      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[18px] border p-3.5 backdrop-blur-[18px] min-[769px]:p-4"
       style={{
         background: palette.panelBackground,
         borderColor: palette.panelBorder,
         boxShadow: palette.panelShadow,
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            theme === "dark"
-              ? "linear-gradient(135deg, rgba(255,255,255,0.06), transparent 34%), radial-gradient(280px 120px at 85% 0%, rgba(214,195,143,0.18), transparent 60%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 24%)"
-              : "linear-gradient(135deg, rgba(255,255,255,0.06), transparent 34%), radial-gradient(280px 120px at 85% 0%, rgba(77,135,254,0.18), transparent 60%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 24%)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-x-5 top-0 h-px"
-        style={{ background: theme === "dark" ? "rgba(255,243,212,0.18)" : "rgba(218,232,255,0.16)" }}
-      />
-
-      <div className="relative z-[1] mb-1.5 flex items-start justify-between gap-2">
+      <div className="relative z-[1] mb-2 flex items-start justify-between gap-2">
         <div>
-          <div className="text-[8px] font-semibold uppercase tracking-[0.18em] min-[769px]:text-[9px]" style={{ color: labelColor }}>
+          <div className="text-[8px] font-semibold uppercase tracking-[0.2em] min-[769px]:text-[9px]" style={{ color: labelColor }}>
             {title}
           </div>
-          <div className="mt-2 text-[16px] font-semibold leading-none tracking-[-0.02em] min-[390px]:text-[18px] min-[769px]:text-[20px]" style={{ color: valueColor }}>
+          <div className="mt-2.5 text-[16px] font-semibold leading-none tracking-[-0.025em] min-[390px]:text-[18px] min-[769px]:text-[20px]" style={{ color: valueColor }}>
             {value}
           </div>
         </div>
@@ -81,9 +67,9 @@ export default function KpiCard({
           <div
             className="rounded-full border px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.14em]"
             style={{
-              borderColor: theme === "dark" ? "rgba(214,195,143,0.34)" : "rgba(111,165,255,0.34)",
-              background: theme === "dark" ? "rgba(68,52,24,0.78)" : "rgba(17,45,108,0.78)",
-              color: theme === "dark" ? "#fff3cf" : "#ffffff",
+              borderColor: theme === "dark" ? "rgba(236,219,166,0.16)" : "rgba(255,255,255,0.14)",
+              background: "rgba(255,255,255,0.03)",
+              color: theme === "dark" ? "#f4e4b0" : "#ffffff",
             }}
           >
             {rating}
@@ -112,16 +98,13 @@ export default function KpiCard({
         ) : null}
 
         {score != null ? (
-          <div className="mt-2 space-y-1">
-            <div className="h-1.5 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="mt-2.5 space-y-1.5">
+            <div className="h-1 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
               <div
                 className="h-full rounded-full"
                 style={{
                   width: `${score}%`,
-                  background:
-                    theme === "dark"
-                      ? "linear-gradient(90deg, #a88a62 0%, #d6c38f 55%, #f8f0df 100%)"
-                      : "linear-gradient(90deg, #4d87fe 0%, #8fb6ff 55%, #dce8ff 100%)",
+                  background: tone === "negative" ? palette.negative : palette.accent,
                 }}
               />
             </div>
@@ -133,7 +116,7 @@ export default function KpiCard({
         ) : null}
 
         {footer && !hasSparklineLayout ? (
-          <div className={hasCustomContent ? "mt-auto pt-1 text-[9px] leading-4 min-[769px]:text-[10px]" : "mt-1.5 text-[9px] leading-4 min-[769px]:text-[10px]"} style={{ color: palette.muted }}>
+          <div className={hasCustomContent ? "mt-auto pt-1.5 text-[9px] leading-4 min-[769px]:text-[10px]" : "mt-2 text-[9px] leading-4 min-[769px]:text-[10px]"} style={{ color: palette.muted }}>
             {footer}
           </div>
         ) : null}
