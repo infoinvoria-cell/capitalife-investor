@@ -14,15 +14,15 @@ export function AppShell({ children, riskNote }: AppShellProps) {
     <div className="app-root">
       <div className="app-container">
         <RoutePrefetch />
-        <div className="relative z-10 h-full">
-          <main className="main-content mobile-scroll h-full overflow-y-auto px-4 pt-[max(0.7rem,env(safe-area-inset-top))]">
+        <div className="relative z-10 flex h-full flex-col">
+          <main className="main-content mobile-scroll flex-1 overflow-y-auto px-4 pt-[max(0.7rem,env(safe-area-inset-top))]">
             <PageTransition className="space-y-2.5 pb-1">
               {children}
               {riskNote ? <div className="px-0 pb-1.5">{riskNote}</div> : null}
             </PageTransition>
           </main>
 
-          <div className="bottom-nav px-4 pt-0.5">
+          <div className="bottom-nav flex-shrink-0 px-4 pt-0.5">
             <BottomNav />
           </div>
         </div>
